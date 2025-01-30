@@ -44,7 +44,7 @@ module.exports = {
         800: '#1046bd',
         900: '#143e94',
         950: '#11275a',
-    },
+      },
       white: "#ffffff",
       black: {
         100: "#111111",
@@ -100,7 +100,7 @@ module.exports = {
       background: '#F9F9F9',     // Off-White Background
       highlight: '#00D1B2',      // Mint Green
       neutralLight: '#D1D5DB',
-      
+      teritiary: "#200F33"
     },
     extend: {},
   },

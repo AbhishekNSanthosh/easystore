@@ -20,7 +20,7 @@ const CustomButton: React.FC<ButtonProps> = ({
 
   return (
     <button
-      className={`rounded-md focus:outline-none ${className} ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+      className={`focus:outline-none ${className} ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
       onClick={!disabled ? onClick : undefined}
       disabled={disabled}
     >

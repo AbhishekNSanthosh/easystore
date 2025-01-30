@@ -15,7 +15,7 @@ export default function Header() {
        </div>
        <div className="flex-1 flex items-center justify-end space-x-7">
         <CustomButton label='Log in' className='text-secondary font-medium py-1 rounded-full'/>
-        <CustomButton label='Sign up' className='text-secondary font-medium px-3 py-1 rounded-full bg-primary'/>
+        <CustomButton label='Sign up' className='text-secondary flex font-medium px-3 py-1 rounded-full bg-primary'/>
        </div>
     </div>
   )
