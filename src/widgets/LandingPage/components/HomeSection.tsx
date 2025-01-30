@@ -2,6 +2,6 @@ import React from 'react'
 
 export default function HomeSection() {
   return (
-    <div>HomeSection</div>
+    <div className='min-h-screen'>HomeSection</div>
   )
 }
