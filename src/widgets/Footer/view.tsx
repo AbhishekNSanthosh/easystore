@@ -19,7 +19,7 @@ export default function Footer() {
             className="flex-1 bg-transparent px-2 bg-gray-200 py-1 text-sm lg:text-base outline-none placeholder:text-gray-600"
             placeholder="youremail@gmail.com"
           />
-          <div className="bg-[#200F33] p-3 rounded-full flex items-center justify-center cursor-pointer">
+          <div className="bg-secondary p-3 rounded-full flex items-center justify-center cursor-pointer">
             <IoMdSend className="text-xl lg:text-2xl text-white" />
           </div>
         </div>
