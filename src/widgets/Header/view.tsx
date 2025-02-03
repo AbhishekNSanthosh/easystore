@@ -1,6 +1,5 @@
 import CustomButton from "@components/Button";
 import CustomLink from "@components/Link";
-import Link from "next/link";
 import React from "react";
 
 export default function Header() {
@@ -18,16 +17,18 @@ export default function Header() {
         <span className="text-xl text-gray-700 font-medium">Easy store</span>
       </div>
       <div className="flex-1 flex items-center justify-end space-x-7">
-        <Link href={"/login"}>
+        <CustomLink href={"/login"}>
           <CustomButton
             label="Log in"
             className="text-secondary font-medium py-1 rounded-full"
           />
-        </Link>
+        </CustomLink>
+        <CustomLink href={'/signup'}>
         <CustomButton
           label="Sign up"
           className="text-secondary flex font-medium px-3 py-1 rounded-full bg-primary"
         />
+        </CustomLink>
       </div>
     </div>
   );
