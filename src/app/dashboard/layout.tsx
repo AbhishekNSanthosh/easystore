@@ -1,5 +1,5 @@
-import AdminHeader from "@widgets/Dashboard/components/AdminHeader";
-import AdminSidebar from "@widgets/Dashboard/components/AdminSidebar";
+import AdminHeader from "@widgets/Vendor/Dashboard/components/AdminHeader";
+import AdminSidebar from "@widgets/Vendor/Dashboard/components/AdminSidebar";
 import { useEffect } from "react";
 
 export default function RootLayout({
