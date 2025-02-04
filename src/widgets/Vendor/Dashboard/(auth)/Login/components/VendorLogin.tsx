@@ -6,18 +6,25 @@ import React from "react";
 export default function VendorLogin() {
   return (
     <div className="px-[5vw] flex flex-col h-screen">
-        <div className="flex items-center justify-between pt-[2rem]">
-        <Image
+      <div className="flex items-center justify-between pt-[2rem]">
+        <CustomLink href={"/"}>
+          <Image
             src={"/logo.svg"}
             alt=""
             width={1000}
             height={1000}
             className="w-[10rem]"
           />
-          <div className="">
-            <span className="">Facing Issues ? <CustomLink className="text-primary font-semibold" href={''}>Contact</CustomLink></span>
-          </div>
+        </CustomLink>
+        <div className="">
+          <span className="">
+            Facing Issues ?{" "}
+            <CustomLink className="text-primary font-semibold" href={""}>
+              Contact
+            </CustomLink>
+          </span>
         </div>
+      </div>
       <div className="flex h-full flex-row w-full">
         <div className="flex-1 flex items-center justify-center">
           <Image

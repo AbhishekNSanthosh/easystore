@@ -4,7 +4,7 @@ import React from "react";
 
 export default function Header() {
   return (
-    <div className="px-[5vw] h-[10vh] flex flex-row items-center">
+    <div className="px-[5vw] h-[12vh] flex flex-row items-center">
       <div className="flex-1 flex items-center justify-start space-x-7">
         <CustomLink className="font-medium" href={"/"}>
           FAQ
