@@ -75,10 +75,12 @@ export default function VendorLogin() {
               <div className="h-[1px] flex-1 w-full bg-gray-400"></div>
             </div>
             <div className="w-full flex items-center justify-center mt-0">
-              <CustomButton
-                className="border border-opacity-20 border-secondary w-full font-medium text-secondary px-2 py-2 rounded-[14px]"
-                label="Create account"
-              />
+              <CustomLink href={"/signup"} className="w-full">
+                <CustomButton
+                  className="border border-opacity-20 border-secondary w-full font-medium text-secondary px-2 py-2 rounded-[14px]"
+                  label="Create account"
+                />
+              </CustomLink>
             </div>
           </div>
         </div>
