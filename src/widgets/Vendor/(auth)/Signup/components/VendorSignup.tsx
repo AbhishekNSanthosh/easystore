@@ -28,12 +28,13 @@ export default function VendorSignup() {
       <div className="flex h-full flex-row w-full">
         <div className="flex-1 flex items-center justify-center">
           <div className="shadow-sm rounded-[20px] border-[.5px] border-opacity-10 border-secondary p-10 space-y-4 flex flex-col w-[37rem] items-center justify-center">
-          <span className="font-semibold">Sign up with Email</span>
-<div className="w-full">
-  <p className="text-gray-800 text-sm text-center">
-    Create an account to set up your store, manage orders, and simplify payments—all in one place.
-  </p>
-</div>
+            <span className="font-semibold">Sign up with Email</span>
+            <div className="w-full">
+              <p className="text-gray-800 text-sm text-center">
+                Create an account to set up your store, manage orders, and
+                simplify payments—all in one place.
+              </p>
+            </div>
 
             <div className="flex flex-col items-center space-y-5 w-full">
               <div className="flex flex-row gap-3 w-full">
@@ -87,7 +88,12 @@ export default function VendorSignup() {
             <div className="w-full flex items-center justify-center mt-0">
               <span className="">
                 Already have an account?{" "}
-                <CustomLink href={"/login"} className="text-primary font-semibold">Login</CustomLink>
+                <CustomLink
+                  href={"/login"}
+                  className="text-primary font-semibold"
+                >
+                  Login
+                </CustomLink>
               </span>
             </div>
           </div>
