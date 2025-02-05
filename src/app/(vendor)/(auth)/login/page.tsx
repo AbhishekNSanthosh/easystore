@@ -1,4 +1,4 @@
-import VendorLoginPage from '@widgets/Vendor/Dashboard/(auth)/Login'
+import VendorLoginPage from '@widgets/Vendor/(auth)/Login'
 import React from 'react'
 
 export default function page() {
