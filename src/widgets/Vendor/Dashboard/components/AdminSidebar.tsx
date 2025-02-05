@@ -2,6 +2,6 @@ import React from 'react'
 
 export default function AdminSidebar() {
   return (
-    <div>AdminSidebar</div>
+    <div className='w-[17vw] fixed left-0 bg-white h-full'>AdminSidebar</div>
   )
 }
