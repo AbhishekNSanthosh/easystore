@@ -94,6 +94,20 @@ module.exports = {
         900: '#920a0a',
         950: '#500000',
       },
+      redOrange: {
+        50: '#fef3f2',
+        100: '#fee4e2',
+        200: '#ffcdc9',
+        300: '#fdaaa4',
+        400: '#f97970',
+        500: '#f04438',
+        600: '#de3024',
+        700: '#bb241a',
+        800: '#9a221a',
+        900: '#80231c',
+        950: '#460d09',
+      },
+
       primary: '#FFDD00',        // Golden Yellow
       accent: '#1F75FE',         // Soft Blue
       secondary: '#333333',      // Charcoal Gray
