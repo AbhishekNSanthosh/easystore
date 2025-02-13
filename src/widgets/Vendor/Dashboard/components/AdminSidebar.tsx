@@ -6,7 +6,7 @@ import { FiLogOut } from "react-icons/fi";
 import { IoMdListBox } from "react-icons/io";
 import { IoCheckmarkCircleSharp } from "react-icons/io5";
 import { MdSpaceDashboard } from "react-icons/md";
-import { BiSolidMessageSquareAdd } from "react-icons/bi";
+import { FaHome } from "react-icons/fa";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -14,9 +14,9 @@ export default function AdminSidebar() {
   const location = usePathname();
   const menuItems = [
     {
-      title: "Dashboard",
-      link: "/dashboard",
-      icon: <MdSpaceDashboard className="" />,
+      title: "Home",
+      link: "/dashboard/home",
+      icon: <FaHome className="text-[22px]" />,
     },
   ];
   return (
@@ -36,7 +36,9 @@ export default function AdminSidebar() {
             {location === menuItem?.link && (
               <div className="h-full w-2 rounded-r-[20px] absolute left-0 top-0 bg-red-600"></div>
             )}
+            <div className="flex mt-[-3px]">
             {menuItem?.icon}
+            </div>
             <span className="text-[1.1rem]">{menuItem?.title}</span>
           </Link>
         ))}
