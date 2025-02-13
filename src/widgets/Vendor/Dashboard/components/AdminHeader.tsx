@@ -1,5 +1,6 @@
 import React from 'react'
 import { IoPersonCircleOutline } from "react-icons/io5";
+import { IoIosNotificationsOutline } from "react-icons/io";
 
 export default function AdminHeader() {
   return (
@@ -8,6 +9,9 @@ export default function AdminHeader() {
         <span className="font-medium text-dashcolor-500 text-lg">Welcome, Abhishek Santhosh 👋</span>
       </div>
       <div className="flex-1 flex items-center justify-end">
+        <div className="">
+          <IoIosNotificationsOutline/>
+        </div>
         <div className="">
           <IoPersonCircleOutline className='text-5xl text-gray-500 cursor-pointer'/>
         </div>
