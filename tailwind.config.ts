@@ -94,7 +94,7 @@ module.exports = {
         900: '#920a0a',
         950: '#500000',
       },
-      redOrange: {
+      dashcolor: {
         50: '#fef3f2',
         100: '#fee4e2',
         200: '#ffcdc9',
