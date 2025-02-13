@@ -8,9 +8,9 @@ export default function AdminHeader() {
       <div className="flex-1">
         <span className="font-medium text-dashcolor-500 text-lg">Welcome, Abhishek Santhosh 👋</span>
       </div>
-      <div className="flex-1 flex items-center justify-end">
+      <div className="flex-1 flex items-center justify-end gap-4">
         <div className="">
-          <IoIosNotificationsOutline/>
+          <IoIosNotificationsOutline className='text-3xl cursor-pointer text-dashcolor-500 mr-10'/>
         </div>
         <div className="">
           <IoPersonCircleOutline className='text-5xl text-gray-500 cursor-pointer'/>
