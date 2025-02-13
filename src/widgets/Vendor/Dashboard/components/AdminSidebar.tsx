@@ -6,6 +6,7 @@ import Link from "next/link";
 import { IoMdSettings } from "react-icons/io";
 import { usePathname } from "next/navigation";
 import { SketchPicker } from "react-color";
+import CustomButton from "@components/Button";
 
 export default function AdminSidebar() {
   const [color, setColor] = useState("#1F75FE");
@@ -49,11 +50,12 @@ export default function AdminSidebar() {
         ))}
       </div>
       <div className="relative mt-5 px-[1vw]">
-      <button
-        onClick={()=>{
-          setShowColorPicker(!showColorPicker)
-        }}
-        className="flex items-center justify-center gap-3 w-full border border-dashcolor-500 rounded-[15px] py-2 text-gray-700">
+        <button
+          onClick={() => {
+            setShowColorPicker(!showColorPicker);
+          }}
+          className="flex items-center justify-center gap-3 w-full border border-dashcolor-500 rounded-[15px] py-2 text-gray-700"
+        >
           {" "}
           Select theme:{" "}
           <div
@@ -62,18 +64,21 @@ export default function AdminSidebar() {
           ></div>
         </button>
 
-      {showColorPicker && (
-        <div className="absolute top-full z-90 pt-[10px]">
-          <SketchPicker
-            color={color}
-            onChangeComplete={(newColor) => {
-              setColor(newColor.hex)
-              console.log(newColor.hex)
-            }}
-          />
-        </div>
-      )}
-    </div>
+        {showColorPicker && (
+          <div className="absolute top-full z-90 pt-[10px]">
+            <SketchPicker
+              color={color}
+              onChangeComplete={(newColor) => {
+                setColor(newColor.hex);
+                console.log(newColor.hex);
+              }}
+            />
+          </div>
+        )}
+      </div>
+      <div className="px-[1vw] mt-5">
+        <CustomButton className="bg-red-50 py-2 rounded-[15px] text-red-600 w-full" label="Logout" color="secondary"/>
+      </div>
       <div className="flex flex-col absolute bottom-4 w-full items-center justify-center gap-1 text-xs text-gray-700">
         <span className="text-[9px]">Powered by</span>
         <Image
