@@ -24,6 +24,11 @@ export default function AdminSidebar() {
       icon: <IoMdSettings className="text-[22px]" />,
     },
   ];
+
+  const changeColor = () => {
+    document.documentElement.style.setProperty("--primary-color", color);
+  };
+  
   return (
     <div className="w-[15vw] fixed left-0 bg-white h-full flex-col flex py-2">
       <div className="w-full items-center justify-center flex mt-[2vh]">
@@ -63,21 +68,22 @@ export default function AdminSidebar() {
             style={{ backgroundColor: color }}
           ></div>
         </button>
+        <button className="" onClick={changeColor}>change</button>
 
         {showColorPicker && (
-          <div className="absolute top-full z-90 pt-[10px]">
+          <div className="absolute top-full z-[100] pt-[10px]">
             <SketchPicker
               color={color}
               onChangeComplete={(newColor) => {
                 setColor(newColor.hex);
                 console.log(newColor.hex);
               }}
-            />
+            /> 
           </div>
         )}
       </div>
-      <div className="px-[1vw] mt-5">
-        <CustomButton className="bg-red-50 py-2 rounded-[15px] text-red-600 w-full" label="Logout" color="secondary"/>
+      <div className="px-[1vw] mt-5 absolute bottom-[10vh] w-full">
+        <CustomButton className="bg-red-50 py-2 rounded-[15px]  z-[50] text-red-600 w-full" label="Logout" color="secondary"/>
       </div>
       <div className="flex flex-col absolute bottom-4 w-full items-center justify-center gap-1 text-xs text-gray-700">
         <span className="text-[9px]">Powered by</span>

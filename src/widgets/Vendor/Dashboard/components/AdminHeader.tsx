@@ -7,7 +7,7 @@ export default function AdminHeader() {
   return (
     <div className='fixed top-0 right-0 bg-white w-[85vw] h-[12vh] items-center flex flex-row justify-between px-[2vw]'>
       <div className="flex-1">
-        <span className="font-medium text-dashcolor-500 text-lg">Welcome, Abhishek Santhosh 👋</span>
+        <span className="font-medium text-dash text-lg">Welcome, Abhishek Santhosh 👋</span>
       </div>
       <div className="flex-1 flex items-center justify-end gap-8">
         <div className="border border-gray-300 px-3 py-2 rounded-[15px] flex items-center gap-2">

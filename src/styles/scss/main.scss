@@ -4,6 +4,12 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --primary-color: #f97970; /* Default Primary Color */
+  --secondary-color: #FF5733;
+}
+
+
 
 body {
   padding: 0;

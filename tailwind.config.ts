@@ -107,7 +107,7 @@ module.exports = {
         900: '#80231c',
         950: '#460d09',
       },
-
+      dash: "var(--primary-color)",
       primary: '#FFDD00',        // Golden Yellow
       accent: '#1F75FE',         // Soft Blue
       secondary: '#333333',      // Charcoal Gray
