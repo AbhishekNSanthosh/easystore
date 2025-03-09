@@ -7,6 +7,7 @@ type ButtonProps = {
   size?: 'small' | 'medium' | 'large';  // Button size
   disabled?: boolean;        // Disable the button
   className:string;
+  type?: "submit" | "reset" | "button" | undefined;
 };
 
 const CustomButton: React.FC<ButtonProps> = ({
@@ -15,7 +16,8 @@ const CustomButton: React.FC<ButtonProps> = ({
   color = 'white', // Default color is primary
   size = 'medium',   // Default size is medium
   disabled = false,  // Default is not disabled
-  className
+  className,
+  type
 }) => {
 
   return (
@@ -23,6 +25,7 @@ const CustomButton: React.FC<ButtonProps> = ({
       className={`focus:outline-none ${className} ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
       onClick={!disabled ? onClick : undefined}
       disabled={disabled}
+      type={type}
     >
       {label}
     </button>

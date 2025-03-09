@@ -1,9 +1,76 @@
+"use client";
 import CustomButton from "@components/Button";
+import easyToast from "@components/EasyToast";
 import CustomLink from "@components/Link";
 import Image from "next/image";
-import React from "react";
+import React, { useState } from "react";
 
 export default function VendorSignup() {
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    mobileNumber: "",
+    password: "",
+    confirmPassword: "",
+  });
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value.trim() });
+  };
+
+  const handleSubmit = async () => {
+    if (!formData.firstName || !formData.lastName || !formData.email || !formData.mobileNumber || !formData.password) {
+      setError("All fields are required.");
+      return;
+    }
+
+    if (!/^\d{10}$/.test(formData.mobileNumber)) {
+      setError("Enter a valid 10-digit mobile number.");
+      return;
+    }
+
+    if (formData.password.length < 6) {
+      setError("Password must be at least 6 characters.");
+      return;
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
+
+    setLoading(true);
+    setError("");
+
+    try {
+      const response = await fetch("/api/v1/vendor/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw data;
+      }
+
+      easyToast({ message: data?.message || "", desc: data?.desc, type: "success" });
+    } catch (err: any) {
+      setError(err.message);
+      easyToast({ message: err?.message || "Registration failed.", desc: err?.desc, type: "error" });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
   return (
     <div className="px-[5vw] flex flex-col h-screen">
       <div className="flex items-center justify-between pt-[2rem]">
@@ -16,9 +83,9 @@ export default function VendorSignup() {
             className="w-[10rem]"
           />
         </CustomLink>
-        <div className="">
-          <span className="">
-            Facing Issues ?{" "}
+        <div>
+          <span>
+            Facing Issues?{" "}
             <CustomLink className="text-primary font-semibold" href={""}>
               Contact
             </CustomLink>
@@ -40,11 +107,17 @@ export default function VendorSignup() {
               <div className="flex flex-row gap-3 w-full">
                 <input
                   type="text"
+                  name="firstName"
+                  value={formData.firstName}
+                  onChange={handleChange}
                   className="bg-secondary py-3 px-2 w-full bg-opacity-5 rounded-[14px] outline-none border-none"
                   placeholder="First Name"
                 />
                 <input
                   type="text"
+                  name="lastName"
+                  value={formData.lastName}
+                  onChange={handleChange}
                   className="bg-secondary py-3 px-2 w-full bg-opacity-5 rounded-[14px] outline-none border-none"
                   placeholder="Last Name"
                 />
@@ -52,41 +125,60 @@ export default function VendorSignup() {
               <div className="flex flex-row gap-3 w-full">
                 <input
                   type="text"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
                   className="bg-secondary py-3 px-2 w-full bg-opacity-5 rounded-[14px] outline-none border-none"
                   placeholder="Email"
                 />
                 <input
                   type="text"
+                  name="mobileNumber"
+                  value={formData.mobileNumber}
+                  onChange={handleChange}
                   className="bg-secondary py-3 px-2 w-full bg-opacity-5 rounded-[14px] outline-none border-none"
                   placeholder="Mobile Number"
                 />
               </div>
               <div className="flex flex-row gap-3 w-full">
                 <input
-                  type="text"
+                  type="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
                   className="bg-secondary py-3 px-2 w-full bg-opacity-5 rounded-[14px] outline-none border-none"
                   placeholder="Password"
                 />
                 <input
-                  type="text"
+                  type="password"
+                  name="confirmPassword"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
                   className="bg-secondary py-3 px-2 w-full bg-opacity-5 rounded-[14px] outline-none border-none"
-                  placeholder="Password"
+                  placeholder="Confirm Password"
                 />
               </div>
             </div>
-            <div className="flex w-full justify-end items-center ">
+
+            {error && <p className="text-red-500 text-sm">{error}</p>}
+
+            <div className="flex w-full justify-end items-center">
               <CustomLink href={"/"} className="flex mt-[-13px] text-sm">
                 Forgot password?
               </CustomLink>
             </div>
+
             <div className="w-full flex items-center justify-center mt-0">
               <CustomButton
                 className="bg-primary w-full text-secondary font-semibold capitalize px-2 py-2 rounded-[14px]"
-                label="Sign up"
+                label={loading ? "Signing up..." : "Sign up"}
+                onClick={handleSubmit}
+                disabled={loading}
               />
             </div>
+
             <div className="w-full flex items-center justify-center mt-0">
-              <span className="">
+              <span>
                 Already have an account?{" "}
                 <CustomLink
                   href={"/login"}

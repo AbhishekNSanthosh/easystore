@@ -15,7 +15,7 @@ export default function AdminHeader() {
           <span className="text-gray-700">myntra.easystore.in</span>
         </div>
         <div className="">
-          <IoIosNotificationsOutline className='text-3xl cursor-pointer text-dashcolor-500 '/>
+          <IoIosNotificationsOutline className='text-3xl cursor-pointer text-dash '/>
         </div>
         <div className="">
           <IoPersonCircleOutline className='text-5xl text-gray-500 cursor-pointer'/>

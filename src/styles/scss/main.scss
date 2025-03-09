@@ -5,8 +5,9 @@
 @tailwind utilities;
 
 :root {
-  --primary-color: #f97970; /* Default Primary Color */
+  --primary-color: #de3024; /* Default Primary Color */
   --secondary-color: #FF5733;
+  --primary-rgb: 222, 48, 36;
 }
 
 
@@ -33,4 +34,16 @@ html {
 *::-webkit-scrollbar-thumb {
   background-color: #FFDD00;
   border-radius: 5px;
+}
+
+.dynamicBgLight {
+  background-color: rgba(var(--primary-rgb), 0.1); /* 10% opacity */
+  transition: background-color 0.3s ease-in-out;
+}
+
+.dynamicBg{
+  background-color: rgba(var(--primary-rgb), 0.03); /* 20% opacity */
+}
+.dynamicTextColor{
+  color: var(--primary-color);
 }

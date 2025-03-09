@@ -19,13 +19,14 @@ const VendorSchema = new Schema(
       type: String,
       required: [true, "Password is required"],
     },
-    storeName: {
-        type: String,
-      },
+    isNewAccount: {
+      type: Boolean,
+      default: true
+    },
     createdAt: { type: Date, default: Date.now },
   },
   { timestamps: true }
 );
 
-const Vendor = models.VendorSchema || model("Vendor", VendorSchema);
+const Vendor = models.Vendor || model("Vendor", VendorSchema);
 export default Vendor;

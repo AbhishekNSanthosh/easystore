@@ -1,9 +1,88 @@
+"use client";
 import CustomButton from "@components/Button";
 import CustomLink from "@components/Link";
 import Image from "next/image";
-import React from "react";
+import React, { useState } from "react";
+import { signIn, useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import easyToast from "@components/EasyToast";
 
 export default function VendorLogin() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<{ message: string; desc: string } | null>(
+    null
+  );
+  const router = useRouter();
+  const { data: session, status } = useSession();
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+
+    try {
+      console.log("Attempting login...");
+
+      const res = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
+      });
+
+      if (!res || !res.ok) {
+        throw new Error(res?.error || "Invalid credentials");
+      }
+
+      easyToast({
+        message: "Login Successful",
+        desc: "Redirecting to the dashboard",
+        type: "success",
+      });
+
+      const response = await fetch("/api/v1/vendor/getVendorDetails", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ vendorEmail: email }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch profile details");
+      }
+
+      const profileDetails = await response.json();
+      console.log(profileDetails);
+      if (profileDetails?.vendor?.isNewAccount) {
+        router.push(`/onboarding/${profileDetails?.vendor?._id}`);
+      } else {
+        router.push("/dashboard/home");
+      }
+    } catch (err: any) {
+      console.log("Login error:", err);
+
+      let errorMessage = "An unknown error occurred";
+      let errorDesc = "Please try again later.";
+
+      if (err?.message) {
+        errorMessage = err.message;
+      }
+
+      setError({ message: errorMessage, desc: errorDesc });
+
+      easyToast({
+        message: errorMessage,
+        desc: errorDesc,
+        type: "error",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  console.log(session);
   return (
     <div className="px-[5vw] flex flex-col h-screen">
       <div className="flex items-center justify-between pt-[2rem]">
@@ -44,29 +123,43 @@ export default function VendorLogin() {
                 payments—all in one place.
               </p>
             </div>
-            <div className="flex flex-col items-center space-y-5 w-full">
+            <form
+              className="flex flex-col items-center space-y-5 w-full"
+              onSubmit={handleLogin}
+            >
               <input
-                type="text"
+                type="email"
                 className="bg-secondary py-3 px-2 w-full bg-opacity-5 rounded-[14px] outline-none border-none"
                 placeholder="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
               />
               <input
-                type="text"
+                type="password"
                 className="bg-secondary py-3 px-2 w-full bg-opacity-5 rounded-[14px] outline-none border-none"
                 placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
               />
-            </div>
-            <div className="flex w-full justify-end items-center ">
-              <CustomLink href={"/"} className="flex mt-[-13px] text-sm">
-                Forgot password?
-              </CustomLink>
-            </div>
-            <div className="w-full flex items-center justify-center mt-0">
+              <div className="flex w-full justify-end items-center">
+                <CustomLink href={"/"} className="flex mt-[-13px] text-sm">
+                  Forgot password?
+                </CustomLink>
+              </div>
               <CustomButton
+                type="submit"
                 className="bg-primary w-full text-secondary font-semibold capitalize px-2 py-2 rounded-[14px]"
-                label="Sign in"
+                label={loading ? "Signing in..." : "Sign in"}
+                disabled={loading}
               />
-            </div>
+            </form>
+            {error && (
+              <p className="text-red-500 text-sm text-center">
+                {error.message}
+              </p>
+            )}
             <div className="flex flex-row w-full items-center justify-center">
               <div className="h-[1px] w-full bg-gray-400 flex-1"></div>
               <div className="flex-[1.5] flex items-center justify-center">

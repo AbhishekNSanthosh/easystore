@@ -4,6 +4,7 @@ let isConnected = false;
 
 export const connectToDB = async () => {
   mongoose.set("strictQuery", true);
+  console.log('connecting')
   if (isConnected) {
     console.log("==> Mongo Already connected");
     return;
@@ -11,7 +12,7 @@ export const connectToDB = async () => {
 
   try {
     await mongoose.connect(process.env.NEXT_PUBLIC_MONGODB_URI!, {
-      dbName: "attendease",
+      dbName: "easy-store",
       writeConcern: { w: 'majority' },
     });
     isConnected = true;
