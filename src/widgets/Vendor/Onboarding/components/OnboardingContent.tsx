@@ -5,16 +5,19 @@ import React, { useState } from "react";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { storage } from "../../../../common/config/firebaseConfig";
 import { useParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 export default function OnboardingContent() {
   const [shopName, setShopName] = useState("");
+  const [subdomain, setSubdomain] = useState(""); // New field for subdomain
   const [shopLogo, setShopLogo] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [uploadedUrl, setUploadedUrl] = useState<string | null>(null);
   const [primaryColor, setPrimaryColor] = useState("#1F75FE"); // Default Color
-  const {vendorId} = useParams();
+  const { vendorId } = useParams();
+  const router = useRouter()
 
   const handleLogoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
@@ -26,6 +29,7 @@ export default function OnboardingContent() {
 
   const handleContinue = async () => {
     if (!shopLogo) return alert("Please upload a shop logo first!");
+    if (!subdomain) return alert("Please enter a subdomain!");
 
     const storageRef = ref(storage, `logos/${shopLogo.name}`);
     const uploadTask = uploadBytesResumable(storageRef, shopLogo);
@@ -58,12 +62,13 @@ export default function OnboardingContent() {
       const response = await fetch("/api/v1/vendor/onboarding", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ storeName: shopName, logoUrl, primaryColor,vendorId }),
+        body: JSON.stringify({ storeName: shopName, subdomain, logoUrl, primaryColor, vendorId }),
       });
 
       const data = await response.json();
       if (response.ok) {
         alert("Shop created successfully!");
+        router.push('/dashboard/home')
       } else {
         alert("Error: " + data.message);
       }
@@ -107,6 +112,18 @@ export default function OnboardingContent() {
           value={shopName}
           onChange={(e) => setShopName(e.target.value)}
         />
+
+        {/* Subdomain Input */}
+        <div className="w-full max-w-md flex items-center border rounded-lg p-3">
+          <input
+            type="text"
+            placeholder="Enter subdomain"
+            className="flex-1 outline-none"
+            value={subdomain}
+            onChange={(e) => setSubdomain(e.target.value)}
+          />
+          <span className="ml-2 text-gray-600">.easystore.in</span>
+        </div>
 
         {/* Drag and Drop Logo Upload */}
         <label className="w-full max-w-md p-6 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-white flex flex-col items-center">

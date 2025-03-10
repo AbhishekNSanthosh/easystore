@@ -12,7 +12,23 @@ import easyToast from "@components/EasyToast";
 import DynamicButton from "@components/DynamicButton";
 import { TbLogout2 } from "react-icons/tb";
 
-export default function AdminSidebar() {
+interface StoreData {
+  _id: string;
+  vendorId: string;
+  storeName: string;
+  primaryColor: string;
+  logoUrl: string;
+  bannerImg: string[]; // Array of image URLs
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+}
+
+interface AdminSidebarProps {
+  storeData: StoreData | null;
+}
+
+export default function AdminSidebar({ storeData }: AdminSidebarProps) {
   const [color, setColor] = useState("#1F75FE");
   const [showColorPicker, setShowColorPicker] = useState(false);
   const location = usePathname();
@@ -59,7 +75,7 @@ export default function AdminSidebar() {
   return (
     <div className="w-[15vw] fixed left-0 bg-white h-full flex-col flex py-2">
       <div className="w-full items-center justify-center flex mt-[2vh]">
-        <span className="font-semibold text-3xl text-dash">myntra</span>
+        <span className="font-semibold text-3xl text-dash">{storeData?.storeName}</span>
       </div>
       <div className="mt-[8vh] w-full flex flex-col gap-1">
         {menuItems?.map((menuItem, index) => (
@@ -125,7 +141,7 @@ export default function AdminSidebar() {
           style={{
             color: "var(--primary-color)", // Text color from CSS variable
           }}
-          icon={<TbLogout2 className="dynamicTextColor text-xl"/>}
+          icon={<TbLogout2 className="dynamicTextColor text-xl" />}
         />
       </div>
       <div className="flex flex-col absolute bottom-4 w-full items-center justify-center gap-1 text-xs text-gray-700">

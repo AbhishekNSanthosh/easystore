@@ -7,9 +7,13 @@ const StoreScheme = new Schema(
             required: [true, "Owner ID is required"],
             ref: "User", // (Optional) If it references a User model
         },
+        subdomain: {
+            type: String,
+            required: [true, ""],
+        },
         storeName: {
             type: String,
-            required: [true, "Fist Naame is required"],
+            required: [true, ""],
         },
         primaryColor: {
             type: String,
