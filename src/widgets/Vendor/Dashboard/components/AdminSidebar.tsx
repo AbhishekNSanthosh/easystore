@@ -11,6 +11,7 @@ import { signOut } from "next-auth/react";
 import easyToast from "@components/EasyToast";
 import DynamicButton from "@components/DynamicButton";
 import { TbLogout2 } from "react-icons/tb";
+import { FaUsers } from "react-icons/fa";
 
 interface StoreData {
   _id: string;
@@ -42,6 +43,11 @@ export default function AdminSidebar({ storeData }: AdminSidebarProps) {
       title: "Home",
       link: "/dashboard/home",
       icon: <FaHome className="text-[22px]" />,
+    },
+    {
+      title: "Users",
+      link: "/dashboard/users",
+      icon: <FaUsers className="text-[22px]" />,
     },
     {
       title: "Settings",

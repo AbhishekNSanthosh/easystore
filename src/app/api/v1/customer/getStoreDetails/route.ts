@@ -3,15 +3,15 @@ import Store from "../../../../../common/models/Store";
 
 export const POST = async (request: NextRequest) => {
   try {
-    const { storeName } = await request.json();
+    const { subdomain } = await request.json();
 
     // Validate input
-    if (!storeName) {
+    if (!subdomain) {
       return NextResponse.json({ message: "Store name is required!" }, { status: 400 });
     }
 
     // Find the store by name
-    const store = await Store.findOne({ storeName });
+    const store = await Store.findOne({ subdomain });
 
     if (!store) {
       return NextResponse.json({ message: "Store not found!" }, { status: 404 });

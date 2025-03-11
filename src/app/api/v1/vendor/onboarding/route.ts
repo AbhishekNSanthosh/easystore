@@ -5,7 +5,7 @@ import Vendor from "../../../../../common/models/Vendor";
 export const POST = async (request: NextRequest) => {
   try {
     const { storeName,subdomain, logoUrl, primaryColor, vendorId } = await request.json();
-
+console.log("subdomain :",subdomain,storeName)
     // Validate required fields
     if (!storeName || !logoUrl || !primaryColor) {
       return NextResponse.json({ message: "All fields are required!" }, { status: 400 });
@@ -31,7 +31,7 @@ export const POST = async (request: NextRequest) => {
     const newStore = new Store({ storeName, logoUrl, primaryColor,subdomain, vendorId, isNewAccount: true });
     await newStore.save();
     await vendor.save();
-
+console.log(newStore)
     return NextResponse.json(
       { message: "Store saved successfully!", store: newStore },
       { status: 201 }

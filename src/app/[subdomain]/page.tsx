@@ -18,7 +18,7 @@ export default function Page() {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ storeName: subdomain }),
+          body: JSON.stringify({ subdomain }),
         });
 
         const data = await response.json();

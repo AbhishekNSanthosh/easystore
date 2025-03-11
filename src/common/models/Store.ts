@@ -9,7 +9,7 @@ const StoreScheme = new Schema(
         },
         subdomain: {
             type: String,
-            required: [true, ""],
+            required: true,
         },
         storeName: {
             type: String,

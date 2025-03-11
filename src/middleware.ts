@@ -3,7 +3,7 @@ import { getToken } from "next-auth/jwt";
 
 // Define route protection
 const protectedRoutes = ["/dashboard", "/onboarding"];
-const publicRoutes = ["/login", "/signup", "/"];
+const publicRoutes = ["/login", "/signup"];
 
 // Function to extract the subdomain from the request
 function getValidSubdomain(host: string | null): string | null {
