@@ -1,0 +1,285 @@
+"use client";
+import { useSession } from "next-auth/react";
+import { useParams, useRouter } from "next/navigation";
+import React, { useEffect, useState } from "react";
+import { StoreData } from "../../../../../../interface";
+import Image from "next/image";
+import { MdAssignment, MdEventNote } from "react-icons/md";
+import dayjs from "dayjs";
+import { PhoneCall, CheckCircle, XCircle } from "lucide-react";
+
+export default function Content() {
+  const [store, setStore] = useState<StoreData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [selectedDay, setSelectedDay] = useState(0);
+
+  const [error, setError] = useState("");
+  const { data: session, status } = useSession();
+
+  const router = useRouter();
+  const hexToRGB = (hex: string) => {
+    let r = 0,
+      g = 0,
+      b = 0;
+
+    if (hex.length === 7) {
+      r = parseInt(hex.substring(1, 3), 16);
+      g = parseInt(hex.substring(3, 5), 16);
+      b = parseInt(hex.substring(5, 7), 16);
+    }
+
+    return `${r}, ${g}, ${b}`;
+  };
+
+  useEffect(() => {
+    if (!session?.user?._id) return; // Ensure session and user ID exist
+
+    const fetchStore = async () => {
+      try {
+        const response = await fetch(
+          "/api/v1/vendor/getStoreDetailsByVendorId",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ vendorId: session.user._id }),
+          }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok)
+          throw new Error(data.message || "Failed to fetch store");
+
+        setStore(data.store);
+
+        // Set CSS variables for primary color
+        document.documentElement.style.setProperty(
+          "--primary-color",
+          data.store.primaryColor
+        );
+        document.documentElement.style.setProperty(
+          "--primary-rgb",
+          hexToRGB(data.store.primaryColor)
+        );
+
+        // API success, mark as loaded
+        setIsLoaded(true);
+      } catch (err: any) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStore();
+  }, [session]);
+
+  const days = Array.from({ length: 4 }, (_, i) =>
+    dayjs()
+      .add(i, "day")
+      .format(i === 0 ? "[Today,] ddd DD MMM" : "ddd")
+  );
+
+  const cards = [
+    {
+      id: 1,
+      icon: (
+        <MdAssignment
+          className="text-green-700 bg-green-100 p-2 rounded-full"
+          size={40}
+        />
+      ),
+      title: "Orders today",
+      count: 4,
+    },
+    {
+      id: 2,
+      icon: (
+        <MdEventNote
+          className="text-blue-700 bg-red-100 p-2 rounded-full"
+          size={40}
+        />
+      ),
+      title: "Upcoming",
+      count: 18,
+    },
+  ];
+
+  const orders = [
+    {
+      id: 1,
+      cakeName: "Chocolate Truffle Cake 🍫",
+      userName: "Abhishek Santhosh",
+      image:
+        "https://i.pinimg.com/736x/d6/02/c3/d602c33ad9463f2f98a83d94d7a6830f.jpg",
+      orderCount: 3,
+      deliveryDate: "2025-03-15",
+      address: "123, MG Road, Kochi",
+      contact: "+91 9876543210",
+      note: "Please deliver between 4-6 PM.",
+      status: "Delivered",
+    },
+    {
+      id: 2,
+      cakeName: "Red Velvet Delight 🍰",
+      userName: "Rahul M",
+      image:
+        "https://i.pinimg.com/736x/d6/02/c3/d602c33ad9463f2f98a83d94d7a6830f.jpg",
+      orderCount: 2,
+      deliveryDate: "2025-03-16",
+      address: "456, Brigade Road, Bangalore",
+      contact: "+91 9988776655",
+      note: "Leave at the reception.",
+      status: "Undelivered",
+    },
+    {
+        id: 3,
+        cakeName: "Red Velvet Delight 🍰",
+        userName: "Rahul M",
+        image:
+          "https://i.pinimg.com/736x/d6/02/c3/d602c33ad9463f2f98a83d94d7a6830f.jpg",
+        orderCount: 2,
+        deliveryDate: "2025-03-16",
+        address: "456, Brigade Road, Bangalore",
+        contact: "+91 9988776655",
+        note: "Leave at the reception.",
+        status: "Undelivered",
+      },
+      {
+        id: 4,
+        cakeName: "Red Velvet Delight 🍰",
+        userName: "Rahul M",
+        image:
+          "https://i.pinimg.com/736x/d6/02/c3/d602c33ad9463f2f98a83d94d7a6830f.jpg",
+        orderCount: 2,
+        deliveryDate: "2025-03-16",
+        address: "456, Brigade Road, Bangalore",
+        contact: "+91 9988776655",
+        note: "Leave at the reception.",
+        status: "Undelivered",
+      },
+  ];
+
+  return (
+    <div className="w-full h-full">
+      {loading ? (
+       <div className="w-full h-full justify-center flex items-center">
+         <p>Loading...</p>
+       </div>
+      ) : error ? (
+        <p className="text-red-500">{error}</p>
+      ) : store ? (
+        <div className="flex flex-col justify-start gap-5">
+          <div className="flex flex-row items-center gap-5">
+            <Image
+              src={store.logoUrl}
+              width={1000}
+              height={1000}
+              alt={store.storeName}
+              className="w-16 h-16 rounded-full mt-2"
+            />
+            <div className="flex gap-5 justify-between flex-row w-[18vw] items-center">
+              <div className="flex flex-col gap-1">
+                <h2 className="font-semibold text-xl">{store?.storeName}</h2>
+                <p className="text-sm">You’ve 26 orders this month</p>
+              </div>
+            </div>
+          </div>
+          <div className="flex gap-4">
+            {cards.map((card) => (
+              <div
+                key={card.id}
+                className="bg-white p-[14px] rounded-xl flex flex-col items-start gap-[16px] w-40"
+              >
+                {card.icon}
+                <div className="">
+                  <p className="text-gray-500 mt-2 text-sm">{card.title}</p>
+                  <p className="text-lg font-bold">{card.count} Orders</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="">
+            <h2 className="text-lg font-semibold mb-2">Your Deliveries</h2>
+            <div className="flex gap-4">
+              {days.map((day, index) => (
+                <button
+                  key={index}
+                  className={`px-4 py-2 rounded-full text-sm ${
+                    selectedDay === index
+                      ? "bg-white font-semibold"
+                      : "text-gray-500"
+                  }`}
+                  onClick={() => setSelectedDay(index)}
+                >
+                  {day}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {orders.map((order) => (
+              <div
+                key={order.id}
+                className="bg-white rounded-2xl p-4 flex items-start gap-4"
+              >
+                <Image
+                  src={order.image}
+                  width={1000}
+                  height={1000}
+                  alt="Product"
+                  className="w-36 h-full rounded-xl object-cover"
+                />
+                <div className="flex-1 flex-col flex justify-start">
+                  <h2 className="text-lg font-semibold">{order.cakeName}</h2>
+                  <p className="text-blue-600 font-semibold my-2">
+                    {order.userName}
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    Order Count: {order.orderCount}
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    Delivery Date: {order.deliveryDate}
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    Address: {order.address}
+                  </p>
+                  <p className="text-sm text-gray-600">Note: {order.note}</p>
+                  <div className="flex items-center justify-between mt-2">
+                    <a
+                      href={`tel:${order.contact}`}
+                      className="text-blue-500 flex items-center gap-2"
+                    >
+                      <PhoneCall size={18} />
+                      {order.contact}
+                    </a>
+                    {order.status === "Delivered" ? (
+                      <span className="text-green-600 flex items-center gap-1">
+                        <CheckCircle size={18} />
+                        Delivered
+                      </span>
+                    ) : (
+                      <span className="text-red-600 flex items-center gap-1">
+                        <XCircle size={18} />
+                        Undelivered
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : (
+        <div className="w-full h-full items-center flex justify-center">
+          <p>Store not found.</p>
+        </div>
+      )}
+    </div>
+  );
+}

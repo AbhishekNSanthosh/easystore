@@ -6,7 +6,7 @@ import Link from "next/link";
 import { IoMdSettings } from "react-icons/io";
 import { usePathname } from "next/navigation";
 import { SketchPicker } from "react-color";
-import CustomButton from "@components/Button";
+import { AiOutlineProduct } from "react-icons/ai";
 import { signOut } from "next-auth/react";
 import easyToast from "@components/EasyToast";
 import DynamicButton from "@components/DynamicButton";
@@ -50,6 +50,11 @@ export default function AdminSidebar({ storeData }: AdminSidebarProps) {
       icon: <FaUsers className="text-[22px]" />,
     },
     {
+      title: "Products",
+      link: "/dashboard/products",
+      icon: <AiOutlineProduct className="text-[22px]" />,
+    },
+    {
       title: "Settings",
       link: "/dashboard/settings",
       icon: <IoMdSettings className="text-[22px]" />,
@@ -86,8 +91,8 @@ export default function AdminSidebar({ storeData }: AdminSidebarProps) {
       <div className="mt-[8vh] w-full flex flex-col gap-1">
         {menuItems?.map((menuItem, index) => (
           <Link
-            className={`flex text-gray-700 flex-row items-center gap-2 text-2xl py-2 relative w-full px-[2vw] ${
-              location === menuItem?.link && "dynamicBgLight dynamicTextColor"
+            className={`flex text-gray-700 flex-row items-center gap-2 text-2xl py-2 hoverColor relative w-full px-[2vw] ${
+              location === menuItem?.link && "dynamicBgLight dynamicTextColor "
             }`}
             key={index}
             href={menuItem?.link}
@@ -100,7 +105,7 @@ export default function AdminSidebar({ storeData }: AdminSidebarProps) {
           </Link>
         ))}
       </div>
-      <div className="relative mt-5 px-[1vw]">
+      {/* <div className="relative mt-5 px-[1vw]">
         <button
           onClick={() => {
             setShowColorPicker(!showColorPicker);
@@ -129,7 +134,7 @@ export default function AdminSidebar({ storeData }: AdminSidebarProps) {
             />
           </div>
         )}
-      </div>
+      </div> */}
       <div className="px-[1vw] mt-5 absolute bottom-[10vh] w-full">
         <DynamicButton
           onClick={() => {

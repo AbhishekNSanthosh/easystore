@@ -11,6 +11,7 @@ interface StoreData {
   vendorId: string;
   storeName: string;
   primaryColor: string;
+  subdomain:string;
   logoUrl: string;
   bannerImg: string[]; // Assuming it's an array of image URLs
   createdAt: string;
@@ -94,8 +95,8 @@ export default function RootLayout({
       <AdminSidebar storeData={store} />
       <div className="flex flex-col w-full">
         <AdminHeader storeData={store}/>
-        <main className="min-h-[100vh] h-auto rounded-[5px] pt-[15vh] pl-[17vw] pr-[1vw] pb-[1vw] w-[99.5vw] flex dynamicBg">
-          <div className="w-full h-[82vh] relative overflow-auto">
+        <main className="min-h-[100vh] h-auto rounded-[5px] pt-[15vh] pl-[17vw] pr-[0] pb-[1vw] w-[99.5vw] flex dynamicBg">
+          <div className="w-full h-[82vh] relative overflow-auto pr-4">
             {children}
           </div>
         </main>

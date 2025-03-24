@@ -32,7 +32,7 @@ html {
 }
 
 *::-webkit-scrollbar-thumb {
-  background-color: #FFDD00;
+  background-color:var(--primary-color);
   border-radius: 5px;
 }
 
@@ -46,4 +46,19 @@ html {
 }
 .dynamicTextColor{
   color: var(--primary-color);
+}
+
+.dynamicBgDark{
+  background-color: var(--primary-color);
+}
+
+.dynamicBorder{
+  border: 1px solid rgba(var(--primary-rgb), 0.1);
+}
+
+.dynamicOutline:focus {
+  outline: 2px solid var(--primary-color);
+}
+.hoverColor:hover{
+  background-color: rgba(var(--primary-rgb), 0.09);
 }

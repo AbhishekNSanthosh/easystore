@@ -33,8 +33,8 @@ export default function AdminHeader({ storeData }: AdminSidebarProps) {
     if (storeData?.storeName) {
       setPreviewUrl(
         isLocalhost
-          ? `http://${storeData.subdomain}.localhost:3000`
-          : `https://${storeData.subdomain}.yourdomain.com`
+          ? `http://${storeData?.subdomain}.localhost:3000`
+          : `https://${storeData?.subdomain}.yourdomain.com`
       );
     }
   }, [storeData]);

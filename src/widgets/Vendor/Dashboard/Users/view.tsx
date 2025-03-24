@@ -1,8 +1,10 @@
 import React from 'react'
 import Content from './components/Content'
 
-export default function Home() {
+export default function Users() {
   return (
-      <Content/>
+    <div>
+        <Content/>
+    </div>
   )
 }
