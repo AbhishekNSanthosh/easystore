@@ -1,8 +1,7 @@
-import Settings from '@widgets/Vendor/Dashboard/Settings'
 import React from 'react'
 
 export default function page() {
   return (
-    <Settings/>
+    <div>page</div>
   )
 }

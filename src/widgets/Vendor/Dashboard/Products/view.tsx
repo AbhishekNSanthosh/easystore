@@ -1,79 +1,39 @@
 "use client";
 
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
-import Cropper from "react-easy-crop";
-import { CiBoxList } from "react-icons/ci";
+import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage"; // Ensure Firebase is initialized
 import { IoGridOutline } from "react-icons/io5";
+import { CiBoxList } from "react-icons/ci";
 import { MdOutlineAddCircleOutline } from "react-icons/md";
 import { AiOutlineClose } from "react-icons/ai";
 import Image from "next/image";
+import { storage } from "../../../../common/config/firebaseConfig";
+import { useSession } from "next-auth/react";
 
 interface Product {
-  id: number;
+  _id: string;
   title: string;
-  image: string;
-  actualPrice: number;
-  offerPrice: number;
+  imgUrl: string;
+  price: number;
+  oldPrice: number;
   available: boolean;
 }
 
 export default function Products() {
   const [view, setView] = useState<"grid" | "list">("grid");
-  const [products, setProducts] = useState<Product[]>([
-    {
-      id: 1,
-      title: "Chocolate Cake",
-      image: "/cake.jpg",
-      actualPrice: 500,
-      offerPrice: 450,
-      available: true,
-    },
-    {
-      id: 2,
-      title: "Vanilla Delight",
-      image: "/cake.jpg",
-      actualPrice: 400,
-      offerPrice: 350,
-      available: false,
-    },
-    {
-      id: 3,
-      title: "Strawberry Bliss",
-      image: "/cake.jpg",
-      actualPrice: 600,
-      offerPrice: 550,
-      available: true,
-    },
-  ]);
+  const [products, setProducts] = useState<Product[]>([]);
+  const { data: session } = useSession();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newProduct, setNewProduct] = useState<Partial<Product>>({
     title: "",
-    actualPrice: 0,
-    offerPrice: 0,
+    price: 0,
+    oldPrice: 0,
   });
-  const [imageSrc, setImageSrc] = useState<string | null>(null);
-  const [preview, setPreview] = useState<string | null>(null);
-
-  const toggleAvailability = (id: number) => {
-    setProducts((prev) =>
-      prev.map((product) =>
-        product.id === id
-          ? { ...product, available: !product.available }
-          : product
-      )
-    );
-  };
-
-  const onDrop = useCallback((acceptedFiles: File[]) => {
-    const file = acceptedFiles[0];
-    const reader = new FileReader();
-    reader.onload = () => {
-      setImageSrc(reader.result as string);
-    };
-    reader.readAsDataURL(file);
-  }, []);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [uploadProgress, setUploadProgress] = useState<number | null>(null);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -83,50 +43,134 @@ export default function Products() {
     }));
   };
 
-  const handleAddProduct = () => {
-    if (
-      !newProduct.title ||
-      !imageSrc ||
-      !newProduct.actualPrice ||
-      !newProduct.offerPrice
-    ) {
-      alert("Please fill all fields.");
+  const onDrop = useCallback((acceptedFiles: File[]) => {
+    const file = acceptedFiles[0];
+    setImageFile(file);
+    setImagePreview(URL.createObjectURL(file));
+  }, []);
+
+  const { getRootProps, getInputProps } = useDropzone({
+    accept: { "image/*": [] },
+    onDrop,
+  });
+
+  const uploadImageAndSubmit = async () => {
+    if (!imageFile) {
+      alert("Please upload an image.");
       return;
     }
-    setProducts((prev) => [
-      ...prev,
-      {
-        id: prev.length + 1,
-        available: true,
-        image: imageSrc,
-        ...newProduct,
-      } as Product,
-    ]);
-    setIsModalOpen(false);
-    setNewProduct({ title: "", actualPrice: 0, offerPrice: 0 });
-    setImageSrc(null);
+
+    const storageRef = ref(storage, `products/${imageFile.name}`);
+    const uploadTask = uploadBytesResumable(storageRef, imageFile);
+
+    uploadTask.on(
+      "state_changed",
+      (snapshot) => {
+        const progress = Math.round(
+          (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+        );
+        setUploadProgress(progress);
+      },
+      (error) => {
+        console.error("Upload failed:", error);
+      },
+      async () => {
+        const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+        submitProduct(downloadURL);
+      }
+    );
   };
+
+  const submitProduct = async (imageURL: string) => {
+    try {
+      const productData = {
+        title: newProduct.title,
+        price: newProduct.price,
+        oldPrice: newProduct.oldPrice,
+        imgUrl: imageURL,
+        available: true,
+        // ownedBy:
+      };
+
+      const response = await fetch("/api/v1/vendor/createNewProduct", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(productData),
+      });
+
+      if (response.ok) {
+        const addedProduct = await response.json();
+        console.log(addedProduct.product);
+        setProducts((prev) => [
+          ...prev,
+          { id: prev.length + 1, ...addedProduct?.product },
+        ]);
+        setIsModalOpen(false);
+        setNewProduct({
+          title: addedProduct?.product?.title,
+          price: addedProduct?.product?.price,
+          oldPrice: addedProduct?.product?.oldPrice,
+          imgUrl: addedProduct?.product?.imgUrl,
+        });
+        setImagePreview(null);
+        setUploadProgress(null);
+      } else {
+        console.error("Failed to add product");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const getProductList = async () => {
+    try {
+      const res = await fetch("/api/v1/vendor/getProductList", {
+        method: "POST",
+      });
+
+      console.log(res);
+
+      if (!res?.ok) {
+        throw res;
+      }
+
+      const data = await res.json();
+      console.log(data?.products);
+      setProducts(data?.products);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    getProductList();
+  }, []);
 
   return (
     <div className="p-4">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-semibold">Cakes</h2>
         <div className="flex gap-2">
-          {/* Toggle View Buttons */}
           <button
             onClick={() => setView("grid")}
-            className={`px-3 py-1 border rounded ${view === "grid" ? "dynamicBgDark text-white dynamicBorder" : "bg-white dynamicBorder dynamicTextColor"}`}
+            className={`px-3 py-1 border rounded ${
+              view === "grid"
+                ? "dynamicBgDark text-white dynamicBorder"
+                : "bg-white dynamicBorder dynamicTextColor"
+            }`}
           >
             <IoGridOutline className="text-xl" />
           </button>
           <button
             onClick={() => setView("list")}
-            className={`px-3 py-1 border rounded ${view === "list" ? "dynamicBgDark text-white dynamicBorder" : "bg-white dynamicBorder dynamicTextColor"}`}
+            className={`px-3 py-1 border rounded ${
+              view === "list"
+                ? "dynamicBgDark text-white dynamicBorder"
+                : "bg-white dynamicBorder dynamicTextColor"
+            }`}
           >
             <CiBoxList className="text-xl" />
           </button>
-
-          {/* Add Product Button */}
           <button
             onClick={() => setIsModalOpen(true)}
             className="dynamicBorder bg-white dynamicTextColor px-4 flex items-center justify-center gap-2 py-2 rounded"
@@ -143,11 +187,11 @@ export default function Products() {
       >
         {products.map((product) => (
           <div
-            key={product.id}
+            key={product._id}
             className="border p-4 rounded flex gap-4 bg-white"
           >
             <img
-              src={product.image}
+              src={product.imgUrl}
               alt={product.title}
               className="w-24 h-24 object-cover rounded"
             />
@@ -155,20 +199,10 @@ export default function Products() {
               <h3 className="font-semibold">{product.title}</h3>
               <p className="text-gray-500">
                 <span className="line-through text-red-500">
-                  ₹{product.actualPrice}
+                  ₹{product.price}
                 </span>{" "}
-                ₹{product.offerPrice}
+                ₹{product.oldPrice}
               </p>
-              <button
-                onClick={() => toggleAvailability(product.id)}
-                className={`mt-2 px-3 py-1 text-sm rounded ${
-                  product.available
-                    ? "bg-green-500 text-white"
-                    : "bg-red-500 text-white"
-                }`}
-              >
-                {product.available ? "Available" : "Unavailable"}
-              </button>
             </div>
           </div>
         ))}
@@ -176,73 +210,77 @@ export default function Products() {
 
       {isModalOpen && (
         <div className="absolute inset-0 backdrop-blur-md bg-opacity-40 flex justify-center items-center">
-        <div className="bg-white p-6 rounded-lg w-[30rem] flex flex-col relative items-center justify-center">
-          <div className="flex justify-between items-center mb-4 ">
-            <h2 className="text-xl font-semibold dynamicTextColor">Add Product</h2>
+          <div className="bg-white p-6 rounded-lg w-[30rem] flex flex-col relative items-center justify-center">
             <button
               onClick={() => setIsModalOpen(false)}
               className="text-gray-600 absolute right-7"
             >
               <AiOutlineClose className="text-2xl" />
             </button>
-          </div>
-      
-          <label className="w-full max-w-lg h-[20vh] justify-center p-6 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-white flex flex-col items-center">
-            <input type="file" accept="image/*" className="hidden" />
-            {preview ? (
-              <Image
-                src={preview}
-                alt="Shop Logo"
-                width={120}
-                height={120}
-                className="rounded-full shadow-lg"
-              />
-            ) : (
-              <span className="text-gray-500 text-center">
-                Drag & Drop or Click to Upload Logo
-              </span>
+
+            <h2 className="text-xl font-semibold dynamicTextColor">
+              Add Product
+            </h2>
+
+            <div
+              {...getRootProps()}
+              className="w-full h-[20vh] border-2 border-dashed border-gray-300 rounded-lg cursor-pointer flex flex-col items-center justify-center p-6 bg-white"
+            >
+              <input {...getInputProps()} />
+              {imagePreview ? (
+                <Image
+                  src={imagePreview}
+                  alt="Preview"
+                  width={120}
+                  height={120}
+                  className="rounded shadow-lg"
+                />
+              ) : (
+                <span className="text-gray-500 text-center">
+                  Drag & Drop or Click to Upload Image
+                </span>
+              )}
+            </div>
+
+            {uploadProgress !== null && (
+              <p className="mt-2 text-sm text-blue-500">
+                Uploading: {uploadProgress}%
+              </p>
             )}
-          </label>
-      
-          {/* Product Name */}
-          <input
-            type="text"
-            name="title"
-            value={newProduct.title}
-            onChange={handleInputChange}
-            className="w-full border border-gray-300 p-2 rounded-md mt-4 dynamicOutline"
-            placeholder="Product Name"
-          />
-      
-          {/* Old Price */}
-          <input
-            type="number"
-            name="oldPrice"
-            // value={newProduct.oldPrice}
-            onChange={handleInputChange}
-            className="w-full border border-gray-300 p-2 rounded-md mt-4 dynamicOutline"
-            placeholder="Old Price"
-          />
-      
-          {/* New Price */}
-          <input
-            type="number"
-            name="newPrice"
-            // value={newProduct.newPrice}
-            onChange={handleInputChange}
-            className="w-full border border-gray-300 p-2 rounded-md mt-4 dynamicOutline"
-            placeholder="New Price"
-          />
-      
-          <button
-            onClick={handleAddProduct}
-            className="mt-4 bg-blue-600 text-white w-full py-2 rounded-md dynamicBgDark"
-          >
-            Add Product
-          </button>
+
+            <input
+              type="text"
+              name="title"
+              value={newProduct.title}
+              onChange={handleInputChange}
+              className="w-full border border-gray-300 p-2 rounded-md mt-4 dynamicOutline"
+              placeholder="Product Name"
+            />
+            <input
+              type="number"
+              name="price"
+              value={newProduct.price || ""}
+              onChange={handleInputChange}
+              className="w-full border border-gray-300 p-2 rounded-md mt-4 dynamicOutline"
+              placeholder="Actual Price"
+            />
+            <input
+              type="number"
+              name="oldPrice"
+              value={newProduct.oldPrice || ""}
+              onChange={handleInputChange}
+              className="w-full border border-gray-300 p-2 rounded-md mt-4 dynamicOutline"
+              placeholder="Offer Price"
+            />
+
+            <button
+              onClick={uploadImageAndSubmit}
+              className="mt-4 bg-blue-600 text-white w-full py-2 rounded-md dynamicBgDark"
+            >
+              Add Product
+            </button>
+          </div>
         </div>
-      </div>
-      
       )}
     </div>
   );

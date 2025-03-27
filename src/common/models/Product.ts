@@ -2,27 +2,29 @@ import { Schema, model, models } from "mongoose";
 
 const ProductSchema = new Schema(
   {
-    firstName: {
+    title: {
       type: String,
-      require: [true, "Fist Naame is required"],
+      required: true,
     },
-    lastName: {
-      type: String,
-      require: [true, "Last Name is reqired"],
+    price: {
+      type: Number,
+      required: true,
     },
-    email: {
-      type: String,
-      unique: [true, "Email already exist"],
-      require: [true, "Email is required"],
+    oldPrice: {
+      type: Number,
     },
-    password: {
+    ownedBy: {
       type: String,
-      require: [true, "Password is required"],
+      required: true
+    },
+    imgUrl: {
+      type: String,
+      required: true,
     },
     createdAt: { type: Date, default: Date.now },
   },
   { timestamps: true }
 );
 
-const Product = models.ProductSchema || model("Product", ProductSchema);
+const Product = models.Product || model("Product", ProductSchema);
 export default Product;
