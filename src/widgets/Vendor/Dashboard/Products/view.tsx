@@ -10,6 +10,7 @@ import { AiOutlineClose } from "react-icons/ai";
 import Image from "next/image";
 import { storage } from "../../../../common/config/firebaseConfig";
 import { useSession } from "next-auth/react";
+import Cookies from "js-cookie";
 
 interface Product {
   _id: string;
@@ -23,6 +24,8 @@ interface Product {
 export default function Products() {
   const [view, setView] = useState<"grid" | "list">("grid");
   const [products, setProducts] = useState<Product[]>([]);
+  const [subdomain, setSubdomain] = useState(Cookies.get("subdomain") || ""); // Get subdomain from cookies
+
   const { data: session } = useSession();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -44,10 +47,13 @@ export default function Products() {
   };
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
+    if (!acceptedFiles.length) return;
     const file = acceptedFiles[0];
+    console.log("File received:", file);
     setImageFile(file);
     setImagePreview(URL.createObjectURL(file));
   }, []);
+  
 
   const { getRootProps, getInputProps } = useDropzone({
     accept: { "image/*": [] },
@@ -89,7 +95,7 @@ export default function Products() {
         oldPrice: newProduct.oldPrice,
         imgUrl: imageURL,
         available: true,
-        // ownedBy:
+        ownedBy: subdomain,
       };
 
       const response = await fetch("/api/v1/vendor/createNewProduct", {
@@ -121,26 +127,35 @@ export default function Products() {
       console.log(error);
     }
   };
-
+console.log(subdomain)
   const getProductList = async () => {
     try {
+      const productData = {
+        subdomain,
+      };
+  
       const res = await fetch("/api/v1/vendor/getProductList", {
         method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(productData), // Wrap subdomain inside an object
       });
-
+  
       console.log(res);
-
-      if (!res?.ok) {
-        throw res;
+  
+      if (!res.ok) {
+        throw new Error(`Request failed with status ${res.status}`);
       }
-
+  
       const data = await res.json();
       console.log(data?.products);
       setProducts(data?.products);
     } catch (error) {
-      console.log(error);
+      console.error("Error fetching products:", error);
     }
   };
+  
 
   useEffect(() => {
     getProductList();

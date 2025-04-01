@@ -1,16 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import Store from "../../../../../common/models/Store";
+import { connectToDB } from "../../../../../common/db/database";
 
 export const POST = async (request: NextRequest) => {
   try {
-    const { subdomain } = await request.json();
+    // Ensure database connection
+    await connectToDB();
 
-    // Validate input
+    const { subdomain } = await request.json();
+    console.log(subdomain);
+
     if (!subdomain) {
       return NextResponse.json({ message: "Store name is required!" }, { status: 400 });
     }
 
-    // Find the store by name
     const store = await Store.findOne({ subdomain });
 
     if (!store) {
@@ -18,7 +21,8 @@ export const POST = async (request: NextRequest) => {
     }
 
     return NextResponse.json({ message: "Store found!", store }, { status: 200 });
-  } catch (error) {
-    return NextResponse.json({ message: "Error fetching store details", error }, { status: 500 });
+  } catch (error:any) {
+    console.log(error);
+    return NextResponse.json({ message: "Error fetching store details", error: error.message }, { status: 500 });
   }
 };

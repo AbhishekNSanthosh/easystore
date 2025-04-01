@@ -1,6 +1,7 @@
 import { connectToDB } from "../../../../../common/db/database";
 import CryptoJS from "crypto-js";
 import Vendor from "../../../../../common/models/Vendor";
+import User from "../../../../../common/models/User";
 
 export const POST = async (request: Request) => {
   console.log("API called: Vendor Registration");
@@ -16,7 +17,7 @@ export const POST = async (request: Request) => {
     await connectToDB();
 
     // Check if the user already exists
-    if (await Vendor.findOne({ email })) {
+    if (await User.findOne({ email })) {
       return new Response(JSON.stringify({ message: "User already exists", desc: "Try another email." }), { status: 409 });
     }
 
@@ -30,7 +31,7 @@ export const POST = async (request: Request) => {
     const encryptedPassword = CryptoJS.AES.encrypt(password, process.env.NEXTAUTH_CRYPTO_SECRET_KEY).toString();
 
     // Save new vendor
-    await Vendor.create({ firstName, lastName, email, mobileNumber, password: encryptedPassword });
+    await User.create({ firstName, lastName, email, mobileNumber, password: encryptedPassword });
 
     return new Response(JSON.stringify({ message: "Registered successfully", desc: "Redirecting to login." }), { status: 201 });
 

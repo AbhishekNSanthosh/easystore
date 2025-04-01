@@ -114,7 +114,7 @@ export default function Content() {
       cakeName: "Chocolate Truffle Cake 🍫",
       userName: "Abhishek Santhosh",
       image:
-        "https://i.pinimg.com/736x/d6/02/c3/d602c33ad9463f2f98a83d94d7a6830f.jpg",
+        "https://firebasestorage.googleapis.com/v0/b/informatyka-4b6e6.appspot.com/o/products%2Fcake.jpg?alt=media&token=b620a286-b8c0-41c2-8d94-e598fa43629a",
       orderCount: 3,
       deliveryDate: "2025-03-15",
       address: "123, MG Road, Kochi",
@@ -127,7 +127,7 @@ export default function Content() {
       cakeName: "Red Velvet Delight 🍰",
       userName: "Rahul M",
       image:
-        "https://i.pinimg.com/736x/d6/02/c3/d602c33ad9463f2f98a83d94d7a6830f.jpg",
+        "https://firebasestorage.googleapis.com/v0/b/informatyka-4b6e6.appspot.com/o/products%2Fcake.jpg?alt=media&token=b620a286-b8c0-41c2-8d94-e598fa43629a",
       orderCount: 2,
       deliveryDate: "2025-03-16",
       address: "456, Brigade Road, Bangalore",
@@ -140,7 +140,7 @@ export default function Content() {
         cakeName: "Red Velvet Delight 🍰",
         userName: "Rahul M",
         image:
-          "https://i.pinimg.com/736x/d6/02/c3/d602c33ad9463f2f98a83d94d7a6830f.jpg",
+          "https://firebasestorage.googleapis.com/v0/b/informatyka-4b6e6.appspot.com/o/products%2Fcake.jpg?alt=media&token=b620a286-b8c0-41c2-8d94-e598fa43629a",
         orderCount: 2,
         deliveryDate: "2025-03-16",
         address: "456, Brigade Road, Bangalore",
@@ -153,7 +153,7 @@ export default function Content() {
         cakeName: "Red Velvet Delight 🍰",
         userName: "Rahul M",
         image:
-          "https://i.pinimg.com/736x/d6/02/c3/d602c33ad9463f2f98a83d94d7a6830f.jpg",
+          "https://firebasestorage.googleapis.com/v0/b/informatyka-4b6e6.appspot.com/o/products%2Fcake.jpg?alt=media&token=b620a286-b8c0-41c2-8d94-e598fa43629a",
         orderCount: 2,
         deliveryDate: "2025-03-16",
         address: "456, Brigade Road, Bangalore",

@@ -6,10 +6,10 @@ export const POST = async (request: NextRequest) => {
   try {
     await connectToDB(); // Connect to MongoDB
 
-    const { title, price, oldPrice, imgUrl } = await request.json();
-    console.log(title, price, oldPrice, imgUrl)
+    const { title, price, oldPrice, imgUrl, ownedBy } = await request.json();
+    console.log(title, price, oldPrice, imgUrl, ownedBy)
     // Validate required fields
-    if (!title || !price || !imgUrl) {
+    if (!title || !price || !imgUrl || !ownedBy) {
       return NextResponse.json(
         { message: "Missing required fields." },
         { status: 400 }
@@ -17,7 +17,7 @@ export const POST = async (request: NextRequest) => {
     }
 
     // Create a new product document
-    const newProduct = new Product({ title, price, oldPrice, imgUrl });
+    const newProduct = new Product({ title, price, oldPrice, imgUrl, ownedBy });
     await newProduct.save();
 
     return NextResponse.json(

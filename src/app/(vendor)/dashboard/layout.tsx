@@ -5,6 +5,7 @@ import AdminSidebar from "@widgets/Vendor/Dashboard/components/AdminSidebar";
 import { useSession } from "next-auth/react";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import Cookies from "js-cookie";
 
 interface StoreData {
   _id: string;
@@ -46,47 +47,52 @@ export default function RootLayout({
     return `${r}, ${g}, ${b}`;
   };
 
-  useEffect(() => {
-    if (!session?.user?._id) return; // Ensure session and user ID exist
+useEffect(() => {
+  if (!session?.user?._id) return; // Ensure session and user ID exist
 
-    const fetchStore = async () => {
-      try {
-        const response = await fetch(
-          "/api/v1/vendor/getStoreDetailsByVendorId",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ vendorId: session.user._id }),
-          }
-        );
+  const fetchStore = async () => {
+    try {
+      const response = await fetch(
+        "/api/v1/vendor/getStoreDetailsByVendorId",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ vendorId: session.user._id }),
+        }
+      );
 
-        const data = await response.json();
+      const data = await response.json();
 
-        if (!response.ok)
-          throw new Error(data.message || "Failed to fetch store");
+      if (!response.ok)
+        throw new Error(data.message || "Failed to fetch store");
 
-        setStore(data.store);
+      setStore(data.store);
 
-        // Set CSS variables for primary color
-        document.documentElement.style.setProperty("--primary-color", data.store.primaryColor);
-        document.documentElement.style.setProperty(
-          "--primary-rgb",
-          hexToRGB(data.store.primaryColor)
-        );
+      // Set storeName in cookies
+      Cookies.set("storeName", data?.store?.storeName, { expires: 7 }); // Expires in 7 days
+      Cookies.set("subdomain", data?.store?.subdomain, { expires: 7 }); // Expires in 7 days
 
-        // API success, mark as loaded
-        setIsLoaded(true);
-      } catch (err: any) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
+      // Set CSS variables for primary color
+      document.documentElement.style.setProperty("--primary-color", data.store.primaryColor);
+      document.documentElement.style.setProperty(
+        "--primary-rgb",
+        hexToRGB(data.store.primaryColor)
+      );
 
-    fetchStore();
-  }, [session]);
+      // API success, mark as loaded
+      setIsLoaded(true);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchStore();
+}, [session]);
+
 
   return (
     <main>
