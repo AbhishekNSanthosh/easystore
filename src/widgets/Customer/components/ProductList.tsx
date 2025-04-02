@@ -5,15 +5,59 @@ import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import CustomButton from "@components/Button";
 import { Heart } from "lucide-react";
+import easyToast from "@components/EasyToast";
 
 // Define product type
-interface Product {
+
+type User = {
   _id: string;
-  imgUrl: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  mobileNumber: string;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+};
+
+type Address = {
+  name: string;
+  phone: string;
+  street: string;
+  city: string;
+  pincode: string;
+};
+
+type Product = {
+  _id: string;
   title: string;
   price: number;
-  oldPrice?: number;
-}
+  oldPrice: number;
+  ownedBy: string;
+  imgUrl: string;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+};
+
+type Order = {
+  address: Address;
+  _id: string;
+  productId: Product;
+  subdomain: string;
+  createdBy: string;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+};
+
+type ProfileResponse = {
+  success: boolean;
+  user: User;
+  orders: Order[];
+};
+
 
 export default function ProductList() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -23,6 +67,37 @@ export default function ProductList() {
   const router = useRouter();
 
   const { subdomain } = useParams();
+    const [token, setToken] = useState<string | undefined>(Cookies.get("token"));
+    const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+      if (!token) {
+        console.error("No token found! Redirecting to login...");
+        router.push("/login");
+        return;
+      }
+  
+      const fetchProfileDetails = async () => {
+        try {
+          const response = await fetch("/api/v1/customer/getProfileDetails", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ token }),
+          });
+  
+          if (!response.ok) throw new Error("Failed to fetch profile details");
+  
+          const data: ProfileResponse = await response.json();
+          setUser(data.user);
+        } catch (error) {
+          console.error("Error fetching profile details:", error);
+        }
+      };
+  
+      fetchProfileDetails();
+    }, [token, router]);
 
   useEffect(() => {
     if (!subdomain) return;
@@ -52,6 +127,32 @@ export default function ProductList() {
 
     fetchProducts();
   }, [subdomain]); // Re-run when subdomain changes
+  const handleAddToCart = (product: Product, userId: string | undefined) => {
+    if (!userId) {
+      easyToast({ message: "Please log in to add items to the cart.", type: "error" });
+      return;
+    }
+  
+    const cartKey = `cart_${userId}`; // Store user-specific cart
+    const existingCart = Cookies.get(cartKey);
+    const cart = existingCart ? JSON.parse(existingCart) : [];
+  
+    // Check if product is already in the cart
+    const isAlreadyInCart = cart.some((item: Product) => item._id === product._id);
+  
+    if (!isAlreadyInCart) {
+      cart.push(product);
+      Cookies.set(cartKey, JSON.stringify(cart), { expires: 7 }); // Store for 7 days
+  
+      // Dispatch event to update header cart count
+      window.dispatchEvent(new Event("cartUpdated"));
+  
+      easyToast({ message: "Added to cart", type: "success" });
+    } else {
+      easyToast({ message: "Product is already in the cart!", type: "info" });
+    }
+  };
+  
 
   if (loading) return <p className="text-center">Loading products...</p>;
   if (error) return <p className="text-red-500 text-center">{error}</p>;
@@ -69,7 +170,7 @@ export default function ProductList() {
               className="border rounded-lg p-3 transition relative"
             >
               {/* Like Icon */}
-              <button
+              {/* <button
                 onClick={() => setLiked(index)}
                 className="absolute top-5 right-5 p-2 bg-white rounded-full shadow-md hover:bg-gray-100"
               >
@@ -80,7 +181,7 @@ export default function ProductList() {
                       : "text-gray-400"
                   }`}
                 />
-              </button>
+              </button> */}
 
               {/* Product Image */}
               {product.imgUrl ? (
@@ -111,12 +212,18 @@ export default function ProductList() {
 
               {/* Action Buttons */}
               <div className="mt-4 flex gap-2">
-                <button onClick={()=>{
-                  router.push(`${product?._id}/buy`)
-                }} className="w-1/2  text-white dynamicBgDark py-2 rounded-md hover:bg-blue-600 transition">
+                <button
+                  onClick={() => {
+                    router.push(`${product?._id}/buy`);
+                  }}
+                  className="w-1/2  text-white dynamicBgDark py-2 rounded-md hover:bg-blue-600 transition"
+                >
                   Buy Now
                 </button>
-                <button className="w-1/2 dynamicTextColor py-2 rounded-md transition">
+                <button
+                  onClick={() => handleAddToCart(product,user?._id)}
+                  className="w-1/2 dynamicTextColor py-2 rounded-md transition"
+                >
                   Add to Cart
                 </button>
               </div>

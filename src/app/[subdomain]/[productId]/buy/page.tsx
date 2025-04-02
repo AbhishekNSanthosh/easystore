@@ -1,7 +1,8 @@
-"use client"
+"use client";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie"; // Import js-cookie
+import easyToast from "@components/EasyToast";
 
 interface Product {
   _id: string;
@@ -75,7 +76,7 @@ export default function Page() {
       productId: product._id,
       subdomain: window.location.hostname.split(".")[0], // Extract subdomain
       address,
-      token
+      token,
     };
 
     try {
@@ -92,10 +93,17 @@ export default function Page() {
 
       const data = await response.json();
       if (response.ok) {
-        alert("Order placed successfully!");
+        easyToast({
+          message: "Order placed successfully!",
+          type: "success",
+        });
         router.push(`/order-success/${data.orderId}`);
       } else {
-        alert("Failed to place order: " + data.message);
+        easyToast({
+          message: "Failed to place order.",
+          desc:"Kindly Refresh and try again!!!",
+          type: "error",
+        });
       }
     } catch (error) {
       console.error("Error placing order:", error);
@@ -107,10 +115,18 @@ export default function Page() {
       {product ? (
         <>
           <h2 className="text-xl font-semibold">{product.title}</h2>
-          <img src={product.imgUrl} alt={product.title} className="w-full h-48 object-cover" />
+          <img
+            src={product.imgUrl}
+            alt={product.title}
+            className="w-full h-48 object-cover"
+          />
           <p className="text-lg text-gray-700">
             Price: ₹{product.price}{" "}
-            {product.oldPrice && <span className="line-through text-red-500">₹{product.oldPrice}</span>}
+            {product.oldPrice && (
+              <span className="line-through text-red-500">
+                ₹{product.oldPrice}
+              </span>
+            )}
           </p>
 
           {/* Address Form */}
@@ -152,7 +168,10 @@ export default function Page() {
           />
 
           {/* Buy Button */}
-          <button className="dynamicBgDark text-white py-2 px-4 w-full mt-4" onClick={handleBuy}>
+          <button
+            className="dynamicBgDark text-white py-2 px-4 w-full mt-4"
+            onClick={handleBuy}
+          >
             Place Order
           </button>
         </>

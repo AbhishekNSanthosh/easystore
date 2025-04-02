@@ -73,7 +73,7 @@ export default function AllProducts() {
               className="border rounded-lg p-3 transition relative"
             >
               {/* Like Icon */}
-              <button
+              {/* <button
                 onClick={() => setLiked(index)}
                 className="absolute top-5 right-5 p-2 bg-white rounded-full shadow-md hover:bg-gray-100"
               >
@@ -84,7 +84,7 @@ export default function AllProducts() {
                       : "text-gray-400"
                   }`}
                 />
-              </button>
+              </button> */}
 
               {/* Product Image */}
               {product.imgUrl ? (
