@@ -1,5 +1,13 @@
 import mongoose, { Schema, model, models } from "mongoose";
 
+interface IProduct extends Document {
+  title: string;
+  price: number;
+  oldPrice?: number;
+  ownedBy: string;
+  imgUrl: string;
+}
+
 const ProductSchema = new Schema(
   {
     title: {
@@ -25,4 +33,6 @@ const ProductSchema = new Schema(
   },
   { timestamps: true }
 );
-export default mongoose.models.Product || mongoose.model("Product", ProductSchema);
+const Product = mongoose.models.Product || mongoose.model<IProduct>("Product", ProductSchema);
+
+export default Product;

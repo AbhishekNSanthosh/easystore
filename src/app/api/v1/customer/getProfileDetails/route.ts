@@ -30,8 +30,11 @@ export const POST = async (req: NextRequest) => {
         }
 
         // Fetch user orders
-        const orders = await Order.find({ createdBy: userId }).populate("productId");
-
+        const orders = await Order.find({ createdBy: userId }).populate({
+            path: "productId",
+            model: "Product", // Explicitly reference Product
+            select: "title price imgUrl",
+          });
         return NextResponse.json({
             success: true,
             user,
