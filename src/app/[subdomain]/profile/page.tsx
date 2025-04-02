@@ -95,7 +95,7 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-white shadow-lg rounded-lg mt-10">
+    <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg mt-10">
       <h1 className="text-2xl font-bold text-center mb-4">Profile</h1>
 
       {user ? (

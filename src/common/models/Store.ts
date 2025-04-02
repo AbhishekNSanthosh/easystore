@@ -19,6 +19,7 @@ const StoreScheme = new Schema(
             type: String,
             required: true
         },
+
         logoUrl: {
             type: String,
         },

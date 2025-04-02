@@ -59,16 +59,30 @@ type ProfileResponse = {
 };
 
 
-export default function ProductList() {
-  const [products, setProducts] = useState<Product[]>([]);
+export default function ProductList({ searchQuery }: { searchQuery: string }) {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [liked, setLiked] = useState(-1);
   const router = useRouter();
+  const [products, setProducts] = useState<Product[]>([]);
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
+  const [search, setSearch] = useState("");
 
   const { subdomain } = useParams();
     const [token, setToken] = useState<string | undefined>(Cookies.get("token"));
     const [user, setUser] = useState<User | null>(null);
+
+    useEffect(() => {
+      if (!searchQuery) {
+        setFilteredProducts(products);
+      } else {
+        setFilteredProducts(
+          products.filter((product) =>
+            product.title.toLowerCase().includes(searchQuery.toLowerCase())
+          )
+        );
+      }
+    }, [searchQuery, products]);
 
   useEffect(() => {
       if (!token) {
@@ -153,13 +167,14 @@ export default function ProductList() {
     }
   };
   
+  
 
   if (loading) return <p className="text-center">Loading products...</p>;
   if (error) return <p className="text-red-500 text-center">{error}</p>;
 
   return (
-    <div className="px-[5vw] py-[10vh]">
-      <h2 className="text-2xl font-bold mb-4 text-center">Product List</h2>
+    <div className="px-[5vw] pb-[10vh] mt-[5vh]">
+      <h2 className="text-2xl font-bold mb-4 text-center">Products</h2>
       {products.length === 0 ? (
         <p className="text-gray-500">No products found.</p>
       ) : (

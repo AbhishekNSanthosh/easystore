@@ -2,8 +2,17 @@
 import React, { useState, useEffect } from "react";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
-export default function Banner() {
-  const images = ["/banner.png", "/banner2.png", "/banner1.png"];
+interface HeaderProps {
+  storeData: {
+    name: string;
+    logoUrl?: string;
+    bannerImg: string[]; // Ensure this is an array of strings
+  };
+}
+
+export default function Banner({ storeData }: HeaderProps) {
+  // Use storeData.bannerImg if available, otherwise fallback to default images
+  const images = storeData?.bannerImg?.length ? storeData.bannerImg : ["/banner.png", "/banner2.png", "/banner1.png"];
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
@@ -25,6 +34,8 @@ export default function Banner() {
       prevIndex === images.length - 1 ? 0 : prevIndex + 1
     );
   };
+
+  console.log("Banner Images:", images); // Debugging output
 
   return (
     <div className="relative w-full px-[5vw] overflow-hidden pb-[2vh]">

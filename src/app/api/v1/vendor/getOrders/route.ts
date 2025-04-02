@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectToDB } from "../../../../../common/db/database";
 import Order from "../../../../../common/models/Order";
-import mongoose from "mongoose";
+import Product from "../../../../../common/models/Product"; // Ensure this is correctly imported
 
 export const POST = async (request: NextRequest) => {
   try {
@@ -9,15 +9,13 @@ export const POST = async (request: NextRequest) => {
 
     const { subdomain } = await request.json();
 
-    // Fetch orders and manually convert productId to ObjectId for population
-    const orders = await Order.find({ subdomain })
-      .lean()
-      .exec(); // Convert documents to plain objects for manipulation
+    // Fetch orders
+    const orders = await Order.find({ subdomain }).lean().exec();
 
-    // Convert productId string to ObjectId and fetch related product details
+    // Populate product details
     const populatedOrders = await Promise.all(
       orders.map(async (order) => {
-        const product = await mongoose.model("Product").findById(new mongoose.Types.ObjectId(order.productId))
+        const product = await Product.findById(order.productId)
           .select("title imgUrl price oldPrice"); // Fetch only necessary fields
 
         return { ...order, product };
