@@ -42,9 +42,12 @@ export default function Content() {
   const [isLoaded, setIsLoaded] = useState(false);
   const [selectedDay, setSelectedDay] = useState(0);
   const [orders, setOrders] = useState<Order[]>([]);
+  const [status, setStatus] = useState("pending");
+  const [orderStatuses, setOrderStatuses] = useState<{ [key: string]: string }>({});
+
 
   const [error, setError] = useState("");
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
 
   const router = useRouter();
   const hexToRGB = (hex: string) => {
@@ -60,8 +63,7 @@ export default function Content() {
 
     return `${r}, ${g}, ${b}`;
   };
-    const [subdomain, setSubdomain] = useState(Cookies.get("subdomain") || ""); // Get subdomain from cookies
-  
+  const [subdomain, setSubdomain] = useState(Cookies.get("subdomain") || ""); // Get subdomain from cookies
 
   useEffect(() => {
     if (!session?.user?._id) return; // Ensure session and user ID exist
@@ -139,92 +141,67 @@ export default function Content() {
     },
   ];
 
-  // const orders = [
-  //   {
-  //     id: 1,
-  //     cakeName: "Chocolate Truffle Cake 🍫",
-  //     userName: "Abhishek Santhosh",
-  //     image:
-  //       "https://firebasestorage.googleapis.com/v0/b/informatyka-4b6e6.appspot.com/o/products%2Fcake.jpg?alt=media&token=b620a286-b8c0-41c2-8d94-e598fa43629a",
-  //     orderCount: 3,
-  //     deliveryDate: "2025-03-15",
-  //     address: "123, MG Road, Kochi",
-  //     contact: "+91 9876543210",
-  //     note: "Please deliver between 4-6 PM.",
-  //     status: "Delivered",
-  //   },
-  //   {
-  //     id: 2,
-  //     cakeName: "Red Velvet Delight 🍰",
-  //     userName: "Rahul M",
-  //     image:
-  //       "https://firebasestorage.googleapis.com/v0/b/informatyka-4b6e6.appspot.com/o/products%2Fcake.jpg?alt=media&token=b620a286-b8c0-41c2-8d94-e598fa43629a",
-  //     orderCount: 2,
-  //     deliveryDate: "2025-03-16",
-  //     address: "456, Brigade Road, Bangalore",
-  //     contact: "+91 9988776655",
-  //     note: "Leave at the reception.",
-  //     status: "Undelivered",
-  //   },
-  //   {
-  //       id: 3,
-  //       cakeName: "Red Velvet Delight 🍰",
-  //       userName: "Rahul M",
-  //       image:
-  //         "https://firebasestorage.googleapis.com/v0/b/informatyka-4b6e6.appspot.com/o/products%2Fcake.jpg?alt=media&token=b620a286-b8c0-41c2-8d94-e598fa43629a",
-  //       orderCount: 2,
-  //       deliveryDate: "2025-03-16",
-  //       address: "456, Brigade Road, Bangalore",
-  //       contact: "+91 9988776655",
-  //       note: "Leave at the reception.",
-  //       status: "Undelivered",
-  //     },
-  //     {
-  //       id: 4,
-  //       cakeName: "Red Velvet Delight 🍰",
-  //       userName: "Rahul M",
-  //       image:
-  //         "https://firebasestorage.googleapis.com/v0/b/informatyka-4b6e6.appspot.com/o/products%2Fcake.jpg?alt=media&token=b620a286-b8c0-41c2-8d94-e598fa43629a",
-  //       orderCount: 2,
-  //       deliveryDate: "2025-03-16",
-  //       address: "456, Brigade Road, Bangalore",
-  //       contact: "+91 9988776655",
-  //       note: "Leave at the reception.",
-  //       status: "Undelivered",
-  //     },
-  // ];
+  const fetchOrders = async () => {
+    try {
+      const response = await fetch("/api/v1/vendor/getOrders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ subdomain }),
+      });
 
-  useEffect(() => {
-    const fetchOrders = async () => {
-      try {
-        const response = await fetch("/api/v1/vendor/getOrders", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ subdomain }),
-        });
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-
-        const data = await response.json();
-        setOrders(data.orders || []);
-      } catch (error) {
-        console.error("Error fetching orders:", error);
-      } finally {
-        setLoading(false);
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
       }
-    };
+
+      const data = await response.json();
+      setOrders(data.orders || []);
+    } catch (error) {
+      console.error("Error fetching orders:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
 
     fetchOrders();
   }, [subdomain]);
 
+  const updateStatus = async (newStatus: string, orderId: string) => {
+    setLoading(true);
+    try {
+      const response = await fetch(`/api/v1/vendor/updateStatus`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus, orderId }),
+      });
+  
+      if (response.ok) {
+        // Fetch the latest orders to ensure real-time updates
+        await fetchOrders();
+      } else {
+        console.error("Failed to update status");
+      }
+    } catch (error) {
+      console.error("Error updating status:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const statusOptions = [
+    "pending",
+    "processing",
+    "shipped",
+    "delivered",
+    "cancelled",
+  ];
+
   return (
     <div className="w-full h-full">
       {loading ? (
-       <div className="w-full h-full justify-center flex items-center">
-         <p>Loading...</p>
-       </div>
+        <div className="w-full h-full justify-center flex items-center">
+          <p>Loading...</p>
+        </div>
       ) : error ? (
         <p className="text-red-500">{error}</p>
       ) : store ? (
@@ -240,7 +217,9 @@ export default function Content() {
             <div className="flex gap-5 justify-between flex-row w-[18vw] items-center">
               <div className="flex flex-col gap-1">
                 <h2 className="font-semibold text-xl">{store?.storeName}</h2>
-                <p className="text-sm">You’ve {orders?.length} orders this month</p>
+                <p className="text-sm">
+                  You’ve {orders?.length} orders this month
+                </p>
               </div>
             </div>
           </div>
@@ -292,18 +271,20 @@ export default function Content() {
                   className="w-36 h-full rounded-xl object-cover"
                 />
                 <div className="flex-1 flex-col flex justify-start">
-                  <h2 className="text-lg font-semibold">{order?.product?.title}</h2>
+                  <h2 className="text-lg font-semibold">
+                    {order?.product?.title}
+                  </h2>
                   <p className="text-blue-600 font-semibold my-2">
                     {order?.address?.name}
                   </p>
-                  <p className="text-sm text-gray-600">
-                    Order Count: 1
-                  </p>
+                  <p className="text-sm text-gray-600">Order Count: 1</p>
                   {/* <p className="text-sm text-gray-600">
                     Delivery Date: {order.deliveryDate}
                   </p> */}
                   <p className="text-sm text-gray-600">
-                    Address: {order?.address?.city}{order?.address?.street}{order?.address?.pincode}
+                    Address: {order?.address?.city}
+                    {order?.address?.street}
+                    {order?.address?.pincode}
                   </p>
                   {/* <p className="text-sm text-gray-600">Note: {order.note}</p> */}
                   <div className="flex items-center justify-between mt-2">
@@ -314,17 +295,19 @@ export default function Content() {
                       <PhoneCall size={18} />
                       {order?.address?.phone}
                     </a>
-                    {order?.status === "shipped" ? (
-                      <span className="text-green-600 flex items-center gap-1">
-                        <CheckCircle size={18} />
-                        Delivered
-                      </span>
-                    ) : (
-                      <span className="text-red-600 flex items-center gap-1">
-                        <XCircle size={18} />
-                        Undelivered
-                      </span>
-                    )}
+                    <select
+  value={order.status} // Use order-specific status
+  onChange={(e) => updateStatus(e.target.value, order._id)}
+  disabled={loading}
+  className="border rounded-md px-3 py-1 bg-white text-gray-700 focus:outline-none"
+>
+  {statusOptions.map((option) => (
+    <option key={option} value={option}>
+      {option.charAt(0).toUpperCase() + option.slice(1)}
+    </option>
+  ))}
+</select>
+
                   </div>
                 </div>
               </div>

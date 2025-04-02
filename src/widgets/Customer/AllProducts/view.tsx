@@ -25,6 +25,20 @@ export default function AllProducts() {
   const router = useRouter();
 
   const { subdomain } = useParams();
+    const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
+    const [search, setSearch] = useState("");
+      const [token, setToken] = useState<string | undefined>(Cookies.get("token"));
+      useEffect(() => {
+        if (!searchQuery) {
+          setFilteredProducts(products);
+        } else {
+          setFilteredProducts(
+            products.filter((product) =>
+              product.title.toLowerCase().includes(searchQuery.toLowerCase())
+            )
+          );
+        }
+      }, [searchQuery, products]);
 
   useEffect(() => {
     if (!subdomain) return;
@@ -63,11 +77,11 @@ export default function AllProducts() {
       <div className="py-[2vh]">
       <SearchBar setSearchQuery={setSearchQuery} />
       </div>
-      {products.length === 0 ? (
+      {filteredProducts.length === 0 ? (
         <p className="text-gray-500">No products found.</p>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {products.map((product, index) => (
+          {filteredProducts.map((product, index) => (
             <div
               key={product._id}
               className="border rounded-lg p-3 transition relative"

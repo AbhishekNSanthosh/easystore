@@ -121,7 +121,10 @@ export default function CustomerSignup() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData, // Spread formData into the object
+          subdomain, // Add subdomain separately
+        }),
       });
 
       const data = await response.json();

@@ -45,6 +45,9 @@ const UserSchema = new Schema(
     mobileNumber: {
       type: String
     },
+    subdomain: {
+      type: String
+    },
     address: AddressSchema, // Embed the Address schema
   },
   { timestamps: true }

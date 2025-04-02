@@ -36,12 +36,12 @@ export default function FooterCustomer({ storeData }: HeaderProps) {
         </div>
       </div>
       <div className="w-full h-[1px] bg-white bg-opacity-50 my-[3vh]"></div>
-      <div className="flex flex-row items-center justify-between text-xs">
-        <div className="flex items-center gap-2">
+      <div className="flex flex-row items-center justify-center text-xs w-full">
+        {/* <div className="flex items-center gap-2">
           <span className="">Privacy Policy</span>
           <span className="">Refund Policy</span>
-        </div>
-        <div className="flex items-center justify-end">
+        </div> */}
+        <div className="flex w-full items-center justify-center">
           <span className="">@ 2025, Made with
           EasyStore</span>
         </div>

@@ -175,11 +175,11 @@ export default function ProductList({ searchQuery }: { searchQuery: string }) {
   return (
     <div className="px-[5vw] pb-[10vh] mt-[5vh]">
       <h2 className="text-2xl font-bold mb-4 text-center">Products</h2>
-      {products.length === 0 ? (
+      {filteredProducts.length === 0 ? (
         <p className="text-gray-500">No products found.</p>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {products.map((product, index) => (
+          {filteredProducts.map((product, index) => (
             <div
               key={product._id}
               className="border rounded-lg p-3 transition relative"
