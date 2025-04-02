@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie"; // Import js-cookie
 import easyToast from "@components/EasyToast";
+import UserPreLoader from "@components/UserPreloader";
 
 interface Product {
   _id: string;
@@ -22,6 +23,16 @@ export default function Page() {
     city: "",
     pincode: "",
   });
+
+    const [isLoaded, setIsLoaded] = useState(false);
+  
+    useEffect(() => {
+      const timer = setTimeout(() => {
+        setIsLoaded(true);
+      }, 1000);
+  
+      return () => clearTimeout(timer);
+    }, []);
 
   // Extract subdomain and productId from URL
   useEffect(() => {
@@ -111,6 +122,8 @@ export default function Page() {
   };
 
   return (
+      <main>
+          {!isLoaded && <UserPreLoader />}
     <div className="max-w-lg mx-auto p-4">
       {product ? (
         <>
@@ -179,5 +192,6 @@ export default function Page() {
         <p>Loading product details...</p>
       )}
     </div>
+    </main>
   );
 }

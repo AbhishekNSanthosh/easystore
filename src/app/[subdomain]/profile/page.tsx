@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 import Image from "next/image";
+import UserPreLoader from "@components/UserPreloader";
 
 type User = {
   _id: string;
@@ -54,6 +55,15 @@ type ProfileResponse = {
 };
 
 export default function ProfilePage() {
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoaded(true);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, []);
   const router = useRouter();
   const [orders, setOrders] = useState<Order[]>([]);
   const [token, setToken] = useState<string | undefined>(Cookies.get("token"));
@@ -95,68 +105,74 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg mt-10">
-      <h1 className="text-2xl font-bold text-center mb-4">Profile</h1>
+    <main>
+      {!isLoaded && <UserPreLoader />}
+      <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg mt-10">
+        <h1 className="text-2xl font-bold text-center mb-4">Profile</h1>
 
-      {user ? (
-        <>
-          <div className="bg-gray-100 p-4 rounded-lg mb-6">
-            <h2 className="text-lg font-semibold">Personal Information</h2>
-            <p>
-              <strong>Name:</strong> {user.firstName} {user.lastName}
-            </p>
-            <p>
-              <strong>Email:</strong> {user.email}
-            </p>
-            <p>
-              <strong>Phone:</strong> {user.mobileNumber}
-            </p>
-          </div>
+        {user ? (
+          <>
+            <div className="bg-gray-100 p-4 rounded-lg mb-6">
+              <h2 className="text-lg font-semibold">Personal Information</h2>
+              <p>
+                <strong>Name:</strong> {user.firstName} {user.lastName}
+              </p>
+              <p>
+                <strong>Email:</strong> {user.email}
+              </p>
+              <p>
+                <strong>Phone:</strong> {user.mobileNumber}
+              </p>
+            </div>
 
-          <div className="bg-gray-100 p-4 rounded-lg mb-6">
-            <h2 className="text-lg font-semibold">Orders</h2>
-            {orders.length > 0 ? (
-              <ul className="space-y-2">
-                {orders.map((order) => (
-                  <li key={order._id} className="bg-white p-3 rounded shadow flex items-center space-x-4">
-                  <div className="w-20 h-20 relative">
-                    <Image
-                      src={order.productId.imgUrl}
-                      alt={order.productId.title}
-                      layout="fill"
-                      objectFit="cover"
-                      className="rounded-lg"
-                    />
-                  </div>
-                  <div>
-                    <p>
-                      <strong>Product:</strong> {order.productId.title}
-                    </p>
-                    <p>
-                      <strong>Price:</strong> ₹{order.productId.price}
-                    </p>
-                    <p>
-                      <strong>Status:</strong> {order.status}
-                    </p>
-                  </div>
-                </li>
-                ))}
-              </ul>
-            ) : (
-              <p>No orders found.</p>
-            )}
-          </div>
-        </>
-      ) : (
-        <p className="text-center">Loading profile...</p>
-      )}
+            <div className="bg-gray-100 p-4 rounded-lg mb-6">
+              <h2 className="text-lg font-semibold">Orders</h2>
+              {orders.length > 0 ? (
+                <ul className="space-y-2">
+                  {orders.map((order) => (
+                    <li
+                      key={order._id}
+                      className="bg-white p-3 rounded shadow flex items-center space-x-4"
+                    >
+                      <div className="w-20 h-20 relative">
+                        <Image
+                          src={order.productId.imgUrl}
+                          alt={order.productId.title}
+                          layout="fill"
+                          objectFit="cover"
+                          className="rounded-lg"
+                        />
+                      </div>
+                      <div>
+                        <p>
+                          <strong>Product:</strong> {order.productId.title}
+                        </p>
+                        <p>
+                          <strong>Price:</strong> ₹{order.productId.price}
+                        </p>
+                        <p>
+                          <strong>Status:</strong> {order.status}
+                        </p>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p>No orders found.</p>
+              )}
+            </div>
+          </>
+        ) : (
+          <p className="text-center">Loading profile...</p>
+        )}
 
-      <button
-        className="w-full dynamicBgDark text-white py-2 rounded-lg hover:bg-red-600"
-        onClick={handleLogout}
-      >
-        Logout
-      </button>
-    </div>
+        <button
+          className="w-full dynamicBgDark text-white py-2 rounded-lg hover:bg-red-600"
+          onClick={handleLogout}
+        >
+          Logout
+        </button>
+      </div>
+    </main>
   );
 }
