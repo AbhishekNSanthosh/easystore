@@ -7,6 +7,7 @@ import { signIn, useSession } from "next-auth/react";
 import { useParams, usePathname, useRouter } from "next/navigation";
 import easyToast from "@components/EasyToast";
 import Link from "next/link";
+import Cookies from "js-cookie";
 
 export default function CustomerLogin() {
   const [email, setEmail] = useState("");
@@ -80,22 +81,60 @@ export default function CustomerLogin() {
   }, [subdomain]);
 
   const handleLogin = async (e: React.FormEvent) => {
-  
+    e.preventDefault();
+
+    if (!email || !password) {
+      alert("Please enter both email and password");
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/v1/customer/signin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Store the token in cookies (secure & HTTP-only for production)
+        Cookies.set("token", data.token, {
+          expires: 7,
+          secure: true,
+          sameSite: "Strict",
+        });
+        easyToast({
+          message: data.message || "Login Success",
+          type: "success",
+        });
+
+       router.push('/')
+      } else {
+        easyToast({
+          message: data.message || "Login failed",
+          type: "error",
+        });
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      alert("Something went wrong. Please try again.");
+    }
   };
 
-  console.log("logo",store);
+  console.log("logo", store);
   return (
     <div className="px-[5vw] flex flex-col h-screen">
       <div className="flex items-center justify-between pt-[2rem]">
         <CustomLink href={"/"}>
           {store?.logoUrl ? (
-              <Image
-                src={store.logoUrl}
-                alt={store.name || "Store Logo"}
-                width={1000}
-                height={1000}
-                className="w-[8rem]"
-              />
+            <Image
+              src={store.logoUrl}
+              alt={store.name || "Store Logo"}
+              width={1000}
+              height={1000}
+              className="w-[8rem]"
+            />
           ) : (
             <span>No Logo Available</span>
           )}

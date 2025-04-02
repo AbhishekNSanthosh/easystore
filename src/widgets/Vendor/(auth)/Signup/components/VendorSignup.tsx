@@ -3,6 +3,7 @@ import CustomButton from "@components/Button";
 import easyToast from "@components/EasyToast";
 import CustomLink from "@components/Link";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 
 export default function VendorSignup() {
@@ -14,6 +15,8 @@ export default function VendorSignup() {
     password: "",
     confirmPassword: "",
   });
+
+  const router = useRouter();
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -61,6 +64,7 @@ export default function VendorSignup() {
         throw data;
       }
 
+      router.push('/login')
       easyToast({ message: data?.message || "", desc: data?.desc, type: "success" });
     } catch (err: any) {
       setError(err.message);

@@ -2,7 +2,7 @@
 import PreLoader from "@components/PreLoader";
 import AdminHeader from "@widgets/Vendor/Dashboard/components/AdminHeader";
 import AdminSidebar from "@widgets/Vendor/Dashboard/components/AdminSidebar";
-import { useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Cookies from "js-cookie";

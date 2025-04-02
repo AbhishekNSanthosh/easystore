@@ -111,7 +111,9 @@ export default function ProductList() {
 
               {/* Action Buttons */}
               <div className="mt-4 flex gap-2">
-                <button className="w-1/2  text-white dynamicBgDark py-2 rounded-md hover:bg-blue-600 transition">
+                <button onClick={()=>{
+                  router.push(`${product?._id}/buy`)
+                }} className="w-1/2  text-white dynamicBgDark py-2 rounded-md hover:bg-blue-600 transition">
                   Buy Now
                 </button>
                 <button className="w-1/2 dynamicTextColor py-2 rounded-md transition">

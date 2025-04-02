@@ -12,7 +12,7 @@ export const POST = async (request: NextRequest) => {
 
     // Find the store by name
     const store = await Store.findOne({ vendorId });
-
+    console.log(store)
     if (!store) {
       return NextResponse.json({ message: "Store not found!" }, { status: 404 });
     }

@@ -1,9 +1,12 @@
+"use client";
 import Image from "next/image";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { IoCartOutline } from "react-icons/io5";
 import { IoMdHeartEmpty } from "react-icons/io";
 import { FiLogIn } from "react-icons/fi";
 import Link from "next/link";
+import Cookies from "js-cookie";
+import { CgProfile } from "react-icons/cg";
 
 interface HeaderProps {
   storeData: {
@@ -13,6 +16,17 @@ interface HeaderProps {
 }
 
 export default function Header({ storeData }: HeaderProps) {
+  const [user, setUser] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    const token = Cookies.get("token");
+
+    if (token) {
+      setUser(true); // User is authenticated
+    } else {
+      setUser(false); // No token found, user is not authenticated
+    }
+  }, []);
   return (
     <div className="w-full px-[5vw] h-[10vh] flex items-center border-b border-gray-200 bg-white">
       {/* Logo Section */}
@@ -50,10 +64,17 @@ export default function Header({ storeData }: HeaderProps) {
             <IoCartOutline />
           </div>
           <div className="hover:text-blue-500 cursor-pointer">
-            <Link href={"/signin"}>
+            {user ? (
+              <Link href={"/profile"}>
               {" "}
-              <FiLogIn />
+              <CgProfile />
             </Link>
+            ) : (
+              <Link href={"/signin"}>
+                {" "}
+                <FiLogIn />
+              </Link>
+            )}
           </div>
         </div>
       </div>
