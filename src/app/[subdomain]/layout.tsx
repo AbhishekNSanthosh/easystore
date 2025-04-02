@@ -73,8 +73,6 @@ export default function RootLayout({
     fetchStore();
   }, [subdomain]);
 
-  console.log(store);
-  console.log(store?.storeName, store?.logoUrl);
   return (
     <main>
       {!authRoutes.includes(location) && <Header storeData={store} />}

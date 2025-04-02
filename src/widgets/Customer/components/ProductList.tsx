@@ -87,7 +87,7 @@ export default function ProductList({ searchQuery }: { searchQuery: string }) {
   useEffect(() => {
       if (!token) {
         console.error("No token found! Redirecting to login...");
-        router.push("/login");
+        router.push("/signin");
         return;
       }
   

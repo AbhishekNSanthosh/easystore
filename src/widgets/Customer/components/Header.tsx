@@ -72,6 +72,13 @@ export default function Header({ storeData }: HeaderProps) {
   const [userData, setUserData] = useState<User | null>(null);
   const [token, setToken] = useState<string | undefined>(Cookies.get("token"));
   const router = useRouter();
+
+  useEffect(() => {
+    if (token) {
+      setUser(true);
+    }
+  }, []);
+
   useEffect(() => {
     if (!token) {
       console.error("No token found! Redirecting to login...");
@@ -93,7 +100,6 @@ export default function Header({ storeData }: HeaderProps) {
 
         const data: ProfileResponse = await response.json();
         setUserData(data.user);
-        setUser(true)
       } catch (error) {
         console.error("Error fetching profile details:", error);
       }
@@ -103,32 +109,33 @@ export default function Header({ storeData }: HeaderProps) {
   }, [token, router]);
   useEffect(() => {
     if (!userData?._id) return; // Ensure userData is available before running
-  
+
     const cartKey = `cart_${userData._id}`;
-    const storedCartKey = Object.keys(Cookies.get()).find(key => key === cartKey);
-  
+    const storedCartKey = Object.keys(Cookies.get()).find(
+      (key) => key === cartKey
+    );
+
     if (!storedCartKey) {
       setCartCount(0); // No cart found for this user
       return;
     }
-  
+
     // Function to update cart count based on userId
     const updateCartCount = () => {
       const cart = Cookies.get(cartKey);
       setCartCount(cart ? JSON.parse(cart).length : 0);
     };
-  
+
     updateCartCount(); // Initial count
-  
+
     // Listen for custom "cartUpdated" event
     const handleCartUpdate = () => updateCartCount();
     window.addEventListener("cartUpdated", handleCartUpdate);
-  
+
     return () => {
       window.removeEventListener("cartUpdated", handleCartUpdate);
     };
   }, [userData]); // Depend on userData to rerun when it's available
-  
 
   return (
     <div className="w-full px-[5vw] h-[10vh] flex items-center border-b border-gray-200 bg-white">

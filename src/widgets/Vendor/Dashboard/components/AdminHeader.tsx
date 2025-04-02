@@ -5,12 +5,13 @@ import { IoIosNotificationsOutline } from "react-icons/io";
 import { FiCopy } from "react-icons/fi";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
+import easyToast from "@components/EasyToast";
 
 interface StoreData {
   _id: string;
   vendorId: string;
   storeName: string;
-  subdomain:string;
+  subdomain: string;
   primaryColor: string;
   logoUrl: string;
   bannerImg: string[]; // Array of image URLs
@@ -34,7 +35,7 @@ export default function AdminHeader({ storeData }: AdminSidebarProps) {
       setPreviewUrl(
         isLocalhost
           ? `http://${storeData?.subdomain}.localhost:3000`
-          : `https://${storeData?.subdomain}.yourdomain.com`
+          : `https://${storeData?.subdomain}.midnitcode.in`
       );
     }
   }, [storeData]);
@@ -46,7 +47,7 @@ export default function AdminHeader({ storeData }: AdminSidebarProps) {
           Welcome, {session?.user?.firstName + " " + session?.user?.lastName} 👋
         </span>
       </div>
-      <div className="flex-1 flex items-center justify-end gap-8">
+      <div className="flex-[1.2] flex items-center justify-end gap-8">
         {/* Preview Store Link */}
         {previewUrl && (
           <Link
@@ -62,7 +63,13 @@ export default function AdminHeader({ storeData }: AdminSidebarProps) {
         {previewUrl && (
           <div
             className="border border-gray-300 px-3 py-2 rounded-[15px] flex items-center gap-2 cursor-pointer"
-            onClick={() => navigator.clipboard.writeText(previewUrl)}
+            onClick={() => {
+              navigator.clipboard.writeText(previewUrl);
+              easyToast({
+                message: "Copied to clibboard",
+                type: "info",
+              });
+            }}
           >
             <FiCopy className="text-gray-700" />
             <span className="text-gray-700">{previewUrl}</span>
