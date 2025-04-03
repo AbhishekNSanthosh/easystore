@@ -35,8 +35,6 @@ export default function Settings() {
       easyToast({ message: "No images selected!", type: "info" });
       return;
     }
-
-    setUploading(true);
     try {
       const uploadedUrls = await Promise.all(
         selectedImages.map(async (file) => {

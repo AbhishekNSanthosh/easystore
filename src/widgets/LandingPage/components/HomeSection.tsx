@@ -1,4 +1,5 @@
 import CustomButton from "@components/Button";
+import Link from "next/link";
 import React from "react";
 
 export default function HomeSection() {
@@ -21,14 +22,16 @@ export default function HomeSection() {
           </p>
         </div>
         <div className="mt-5">
-          <CustomButton
-            className="bg-primary rounded-full capitalize text-2xl font-semibold px-7 py-3"
-            label="Create your store"
-          />
+          <Link href={'/login'}>
+            <CustomButton
+              className="bg-primary rounded-full capitalize text-2xl font-semibold px-7 py-3"
+              label="Create your store"
+            />
+          </Link>
         </div>
         <p className="text-lg text-center mt-5">
-        Start for free in under a minute—your store, your way!
-          </p>
+          Start for free in under a minute—your store, your way!
+        </p>
       </div>
     </div>
   );

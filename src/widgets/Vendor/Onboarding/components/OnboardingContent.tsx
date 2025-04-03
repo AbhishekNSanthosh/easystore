@@ -6,6 +6,7 @@ import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { storage } from "../../../../common/config/firebaseConfig";
 import { useParams } from "next/navigation";
 import { useRouter } from "next/navigation";
+import easyToast from "@components/EasyToast";
 
 export default function OnboardingContent() {
   const [shopName, setShopName] = useState("");
@@ -17,7 +18,7 @@ export default function OnboardingContent() {
   const [uploadedUrl, setUploadedUrl] = useState<string | null>(null);
   const [primaryColor, setPrimaryColor] = useState("#1F75FE"); // Default Color
   const { vendorId } = useParams();
-  const router = useRouter()
+  const router = useRouter();
 
   const handleLogoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
@@ -39,7 +40,8 @@ export default function OnboardingContent() {
     uploadTask.on(
       "state_changed",
       (snapshot) => {
-        const progressPercentage = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        const progressPercentage =
+          (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
         setProgress(progressPercentage);
       },
       (error) => {
@@ -62,15 +64,27 @@ export default function OnboardingContent() {
       const response = await fetch("/api/v1/vendor/onboarding", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ storeName: shopName, subdomain, logoUrl, primaryColor, vendorId }),
+        body: JSON.stringify({
+          storeName: shopName,
+          subdomain,
+          logoUrl,
+          primaryColor,
+          vendorId,
+        }),
       });
 
       const data = await response.json();
       if (response.ok) {
-        alert("Shop created successfully!");
-        router.push('/dashboard/home')
+        easyToast({
+          message: "Shop created successfully!",
+          type: "success",
+        });
+        router.push("/dashboard/home");
       } else {
-        alert("Error: " + data.message);
+        easyToast({
+          message: "Something went wrong",
+          type: "error",
+        });
       }
     } catch (error) {
       console.error("Error saving shop:", error);
@@ -127,7 +141,12 @@ export default function OnboardingContent() {
 
         {/* Drag and Drop Logo Upload */}
         <label className="w-full max-w-md p-6 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-white flex flex-col items-center">
-          <input type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} />
+          <input
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={handleLogoUpload}
+          />
           {preview ? (
             <Image
               src={preview}
@@ -137,13 +156,17 @@ export default function OnboardingContent() {
               className="rounded-full shadow-lg"
             />
           ) : (
-            <span className="text-gray-500">Drag & Drop or Click to Upload Logo</span>
+            <span className="text-gray-500">
+              Drag & Drop or Click to Upload Logo
+            </span>
           )}
         </label>
 
         {/* Color Picker */}
         <div className="flex items-center space-x-4">
-          <label className="text-gray-700 font-semibold">Choose Primary Color:</label>
+          <label className="text-gray-700 font-semibold">
+            Choose Primary Color:
+          </label>
           <input
             type="color"
             value={primaryColor}
@@ -173,7 +196,9 @@ export default function OnboardingContent() {
 
         {/* Uploaded Image URL */}
         {uploadedUrl && (
-          <p className="text-sm text-green-600 mt-2">✅ Logo Uploaded Successfully!</p>
+          <p className="text-sm text-green-600 mt-2">
+            ✅ Logo Uploaded Successfully!
+          </p>
         )}
       </div>
     </div>

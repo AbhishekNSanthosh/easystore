@@ -7,7 +7,7 @@ export const POST = async (request: Request) => {
   console.log("API called: Vendor Registration");
 
   try {
-    const { firstName, lastName, email, mobileNumber, password } = await request.json();
+    const { firstName, lastName, email, mobileNumber, password,subdomain } = await request.json();
 
     // Validate required fields
     if (![firstName, lastName, email, mobileNumber, password].every(Boolean)) {
@@ -17,7 +17,7 @@ export const POST = async (request: Request) => {
     await connectToDB();
 
     // Check if the user already exists
-    if (await User.findOne({ email })) {
+    if (await User.findOne({ email,subdomain })) {
       return new Response(JSON.stringify({ message: "User already exists", desc: "Try another email." }), { status: 409 });
     }
 
@@ -31,7 +31,7 @@ export const POST = async (request: Request) => {
     const encryptedPassword = CryptoJS.AES.encrypt(password, process.env.NEXTAUTH_CRYPTO_SECRET_KEY).toString();
 
     // Save new vendor
-    await User.create({ firstName, lastName, email, mobileNumber, password: encryptedPassword });
+    await User.create({ firstName, lastName, email, mobileNumber, password: encryptedPassword,subdomain });
 
     return new Response(JSON.stringify({ message: "Registered successfully", desc: "Redirecting to login." }), { status: 201 });
 

@@ -53,7 +53,6 @@ export default function Products() {
     setImageFile(file);
     setImagePreview(URL.createObjectURL(file));
   }, []);
-  
 
   const { getRootProps, getInputProps } = useDropzone({
     accept: { "image/*": [] },
@@ -127,13 +126,13 @@ export default function Products() {
       console.log(error);
     }
   };
-console.log(subdomain)
+  console.log(subdomain);
   const getProductList = async () => {
     try {
       const productData = {
         subdomain,
       };
-  
+
       const res = await fetch("/api/v1/vendor/getProductList", {
         method: "POST",
         headers: {
@@ -141,13 +140,13 @@ console.log(subdomain)
         },
         body: JSON.stringify(productData), // Wrap subdomain inside an object
       });
-  
+
       console.log(res);
-  
+
       if (!res.ok) {
         throw new Error(`Request failed with status ${res.status}`);
       }
-  
+
       const data = await res.json();
       console.log(data?.products);
       setProducts(data?.products);
@@ -155,7 +154,6 @@ console.log(subdomain)
       console.error("Error fetching products:", error);
     }
   };
-  
 
   useEffect(() => {
     getProductList();
@@ -195,33 +193,37 @@ console.log(subdomain)
         </div>
       </div>
 
-      <div
-        className={
-          view === "grid" ? "grid grid-cols-3 gap-4" : "flex flex-col gap-4"
-        }
-      >
-        {products.map((product) => (
-          <div
-            key={product._id}
-            className="border p-4 rounded flex gap-4 bg-white"
-          >
-            <img
-              src={product.imgUrl}
-              alt={product.title}
-              className="w-24 h-24 object-cover rounded"
-            />
-            <div>
-              <h3 className="font-semibold">{product.title}</h3>
-              <p className="text-gray-500">
-                <span className="line-through text-red-500">
-                  ₹{product.price}
-                </span>{" "}
-                ₹{product.oldPrice}
-              </p>
+      {products?.length === 0 ? (
+        <div>There're no products added</div>
+      ) : (
+        <div
+          className={
+            view === "grid" ? "grid grid-cols-3 gap-4" : "flex flex-col gap-4"
+          }
+        >
+          {products.map((product) => (
+            <div
+              key={product._id}
+              className="border p-4 rounded flex gap-4 bg-white"
+            >
+              <img
+                src={product.imgUrl}
+                alt={product.title}
+                className="w-24 h-24 object-cover rounded"
+              />
+              <div>
+                <h3 className="font-semibold">{product.title}</h3>
+                <p className="text-gray-500">
+                  <span className="line-through text-red-500">
+                    ₹{product.price}
+                  </span>{" "}
+                  ₹{product.oldPrice}
+                </p>
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
 
       {isModalOpen && (
         <div className="absolute inset-0 backdrop-blur-md bg-opacity-40 flex justify-center items-center">

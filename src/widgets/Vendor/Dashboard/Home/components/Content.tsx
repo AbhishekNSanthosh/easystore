@@ -43,8 +43,9 @@ export default function Content() {
   const [selectedDay, setSelectedDay] = useState(0);
   const [orders, setOrders] = useState<Order[]>([]);
   const [status, setStatus] = useState("pending");
-  const [orderStatuses, setOrderStatuses] = useState<{ [key: string]: string }>({});
-
+  const [orderStatuses, setOrderStatuses] = useState<{ [key: string]: string }>(
+    {}
+  );
 
   const [error, setError] = useState("");
   const { data: session } = useSession();
@@ -162,7 +163,6 @@ export default function Content() {
     }
   };
   useEffect(() => {
-
     fetchOrders();
   }, [subdomain]);
 
@@ -174,7 +174,7 @@ export default function Content() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: newStatus, orderId }),
       });
-  
+
       if (response.ok) {
         // Fetch the latest orders to ensure real-time updates
         await fetchOrders();
@@ -205,7 +205,7 @@ export default function Content() {
       ) : error ? (
         <p className="text-red-500">{error}</p>
       ) : store ? (
-        <div className="flex flex-col justify-start gap-5">
+        <div className="flex flex-col justify-start gap-5 w-full h-full">
           <div className="flex flex-row items-center gap-5">
             <Image
               src={store.logoUrl}
@@ -257,62 +257,69 @@ export default function Content() {
             </div> */}
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {orders.map((order) => (
-              <div
-                key={order?._id}
-                className="bg-white rounded-2xl p-4 flex items-start gap-4"
-              >
-                <Image
-                  src={order?.product?.imgUrl}
-                  width={1000}
-                  height={1000}
-                  alt="Product"
-                  className="w-36 h-full rounded-xl object-cover"
-                />
-                <div className="flex-1 flex-col flex justify-start">
-                  <h2 className="text-lg font-semibold">
-                    {order?.product?.title}
-                  </h2>
-                  <p className="text-blue-600 font-semibold my-2">
-                    {order?.address?.name}
-                  </p>
-                  <p className="text-sm text-gray-600">Order Count: 1</p>
-                  {/* <p className="text-sm text-gray-600">
+            {orders?.length === 0 ? (
+              <div className="w-full h-full flex items-center justify-center">There're no orders yet</div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
+              <>
+                {orders.map((order) => (
+                  <div
+                    key={order?._id}
+                    className="bg-white rounded-2xl p-4 flex items-start gap-4"
+                  >
+                    <Image
+                      src={order?.product?.imgUrl}
+                      width={1000}
+                      height={1000}
+                      alt="Product"
+                      className="w-36 h-full rounded-xl object-cover"
+                    />
+                    <div className="flex-1 flex-col flex justify-start">
+                      <h2 className="text-lg font-semibold">
+                        {order?.product?.title}
+                      </h2>
+                      <p className="text-blue-600 font-semibold my-2">
+                        {order?.address?.name}
+                      </p>
+                      <p className="text-sm text-gray-600">Order Count: 1</p>
+                      {/* <p className="text-sm text-gray-600">
                     Delivery Date: {order.deliveryDate}
                   </p> */}
-                  <p className="text-sm text-gray-600">
-                    Address: {order?.address?.city}
-                    {order?.address?.street}
-                    {order?.address?.pincode}
-                  </p>
-                  {/* <p className="text-sm text-gray-600">Note: {order.note}</p> */}
-                  <div className="flex items-center justify-between mt-2">
-                    <a
-                      href={`tel:${order?.address?.phone}`}
-                      className="text-blue-500 flex items-center gap-2"
-                    >
-                      <PhoneCall size={18} />
-                      {order?.address?.phone}
-                    </a>
-                    <select
-  value={order.status} // Use order-specific status
-  onChange={(e) => updateStatus(e.target.value, order._id)}
-  disabled={loading}
-  className="border rounded-md px-3 py-1 bg-white text-gray-700 focus:outline-none"
->
-  {statusOptions.map((option) => (
-    <option key={option} value={option}>
-      {option.charAt(0).toUpperCase() + option.slice(1)}
-    </option>
-  ))}
-</select>
-
+                      <p className="text-sm text-gray-600">
+                        Address: {order?.address?.city}
+                        {order?.address?.street}
+                        {order?.address?.pincode}
+                      </p>
+                      {/* <p className="text-sm text-gray-600">Note: {order.note}</p> */}
+                      <div className="flex items-center justify-between mt-2">
+                        <a
+                          href={`tel:${order?.address?.phone}`}
+                          className="text-blue-500 flex items-center gap-2"
+                        >
+                          <PhoneCall size={18} />
+                          {order?.address?.phone}
+                        </a>
+                        <select
+                          value={order.status} // Use order-specific status
+                          onChange={(e) =>
+                            updateStatus(e.target.value, order._id)
+                          }
+                          disabled={loading}
+                          className="border rounded-md px-3 py-1 bg-white text-gray-700 focus:outline-none"
+                        >
+                          {statusOptions.map((option) => (
+                            <option key={option} value={option}>
+                              {option.charAt(0).toUpperCase() + option.slice(1)}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
-            ))}
+                ))}
+              </>
           </div>
+            )}
         </div>
       ) : (
         <div className="w-full h-full items-center flex justify-center">

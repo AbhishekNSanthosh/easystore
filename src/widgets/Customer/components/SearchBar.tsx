@@ -28,7 +28,7 @@ export default function SearchBar({
               setInputValue(e.target.value);
             }}
             // onKeyDown={handleKeyDown}
-            placeholder="Search for cakes..."
+            placeholder="Search..."
             className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm bg-gray-100 shadow-sm"
           />
         </div>

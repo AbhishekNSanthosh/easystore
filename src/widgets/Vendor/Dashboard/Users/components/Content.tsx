@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import Cookies from "js-cookie";
 import React, { useEffect, useState } from "react";
 
@@ -35,8 +35,10 @@ export default function Content() {
     fetchUsers();
   }, []);
 
+  console.log(users);
+
   return (
-    <div className="min-h-screen flex justify-center py-4 text-gray-700">
+    <div className="h-full flex justify-center py-4 text-gray-700">
       <div className="w-full flex flex-col gap-6">
         <div>
           <h1 className="text-2xl font-bold mb-1">Users</h1>
@@ -46,24 +48,36 @@ export default function Content() {
         {error && <p className="text-center text-red-500">{error}</p>}
 
         {!loading && !error && (
-          <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {users.map((user, index) => (
-                <div
-                  key={index}
-                  className="flex items-center p-4 rounded-lg border bg-white dynamicBorder"
-                >
-                  <div className="dynamicBgLight dynamicTextColor w-16 h-16 flex items-center justify-center rounded-md font-semibold text-lg">
-                    <span className="uppercase">{user?.firstName?.charAt(0)}</span>
+          <div className="w-full h-full">
+            {users?.length === 0 ? (
+              <div className="w-full flex items-center justify-center h-full">
+                There're no users yet
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {users.map((user, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center p-4 rounded-lg border bg-white dynamicBorder"
+                  >
+                    <div className="dynamicBgLight dynamicTextColor w-16 h-16 flex items-center justify-center rounded-md font-semibold text-lg">
+                      <span className="uppercase">
+                        {user?.firstName?.charAt(0)}
+                      </span>
+                    </div>
+                    <div className="ml-4 flex flex-col gap-[6px]">
+                      <h3 className="font-semibold">
+                        {user?.firstName} {user?.lastName}
+                      </h3>
+                      <p className="text-gray-600 text-sm mt-1">
+                        {user?.email}
+                      </p>
+                    </div>
                   </div>
-                  <div className="ml-4 flex flex-col gap-[6px]">
-                    <h3 className="font-semibold">{user?.firstName}{" "}{user?.lastName}</h3>
-                    <p className="text-gray-600 text-sm mt-1">{user?.email}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </>
+                ))}
+              </div>
+            )}
+          </div>
         )}
       </div>
     </div>
