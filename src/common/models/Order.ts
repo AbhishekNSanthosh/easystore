@@ -1,7 +1,7 @@
 import mongoose, { Schema, Document, Types } from "mongoose";
 
 interface IOrder extends Document {
-  productId: Types.ObjectId; // Change from string to ObjectId
+  productId: Types.ObjectId;
   subdomain: string;
   address: {
     name: string;
@@ -10,7 +10,9 @@ interface IOrder extends Document {
     city: string;
     pincode: string;
   };
-  createdBy: Types.ObjectId; 
+  quantity: number;
+  size: string;
+  createdBy: Types.ObjectId;
   status: "pending" | "processing" | "shipped" | "delivered" | "cancelled";
   createdAt: Date;
 }
@@ -18,8 +20,8 @@ interface IOrder extends Document {
 const OrderSchema = new Schema<IOrder>(
   {
     productId: {
-      type: Schema.Types.ObjectId, // Change to ObjectId
-      ref: "Product", // Reference the Product model
+      type: Schema.Types.ObjectId,
+      ref: "Product",
       required: true,
     },
     subdomain: {
@@ -33,10 +35,17 @@ const OrderSchema = new Schema<IOrder>(
       city: { type: String, required: true },
       pincode: { type: String, required: true },
     },
+    quantity: {
+      type: Number,
+      min: 1,
+    },
+    size: {
+      type: String,
+    },
     createdBy: {
-      type: Schema.Types.ObjectId, // Reference to User
-      ref: "User", 
-      required: true, // Ensure that every order has a creator
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
     },
     status: {
       type: String,

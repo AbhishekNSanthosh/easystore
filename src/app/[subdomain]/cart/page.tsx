@@ -130,9 +130,13 @@ export default function ProfilePage() {
             <div key={product._id} className="flex items-center gap-4 p-4 border rounded-md">
               <Image src={product.imgUrl} alt={product.title} width={80} height={80} className="rounded-md"/>
               <div className="flex-1">
-                <h3 className="text-lg font-medium">{product.title}</h3>
-                <p className="text-gray-600">₹{product.price}</p>
-              </div>
+  <h3 className="text-lg font-medium">{product.title}</h3>
+  <p className="text-gray-600">
+    <span className="line-through text-red-500">₹{product.oldPrice}</span>
+  </p>
+  <p className="text-gray-600">₹{product.price}</p>
+</div>
+
               <button
                 onClick={() => handleBuyNow(product)}
                 className="dynamicBgDark text-white px-4 py-2 rounded-md hover:bg-blue-600"
@@ -141,7 +145,7 @@ export default function ProfilePage() {
               </button>
               <button
                 onClick={() => handleRemoveFromCart(product._id)}
-                className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600"
+                className="dynamicBorder dynamicTextColor px-4 py-2 rounded-md "
               >
                 Remove
               </button>

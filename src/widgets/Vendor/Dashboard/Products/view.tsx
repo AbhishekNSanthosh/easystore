@@ -2,7 +2,7 @@
 
 import React, { useState, useCallback, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
-import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage"; // Ensure Firebase is initialized
+import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import { IoGridOutline } from "react-icons/io5";
 import { CiBoxList } from "react-icons/ci";
 import { MdOutlineAddCircleOutline } from "react-icons/md";
@@ -11,6 +11,7 @@ import Image from "next/image";
 import { storage } from "../../../../common/config/firebaseConfig";
 import { useSession } from "next-auth/react";
 import Cookies from "js-cookie";
+import { AiOutlineDelete } from "react-icons/ai";
 
 interface Product {
   _id: string;
@@ -19,12 +20,14 @@ interface Product {
   price: number;
   oldPrice: number;
   available: boolean;
+  availableSizes:string[];
+  sizes?: string[];
 }
 
 export default function Products() {
   const [view, setView] = useState<"grid" | "list">("grid");
   const [products, setProducts] = useState<Product[]>([]);
-  const [subdomain, setSubdomain] = useState(Cookies.get("subdomain") || ""); // Get subdomain from cookies
+  const [subdomain, setSubdomain] = useState(Cookies.get("subdomain") || "");
 
   const { data: session } = useSession();
 
@@ -33,10 +36,40 @@ export default function Products() {
     title: "",
     price: 0,
     oldPrice: 0,
+    sizes: [],
   });
+  const [sizesInput, setSizesInput] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+
+
+  const handleDeleteProduct = async () => {
+    if (selectedProduct) {
+      try {
+        const response = await fetch("/api/v1/vendor/deleteProduct", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ productId: selectedProduct._id }),
+        });
+  
+        if (response.ok) {
+          setProducts((prevProducts) =>
+            prevProducts.filter((product) => product._id !== selectedProduct._id)
+          );
+          setIsDeleteModalOpen(false);
+          setSelectedProduct(null);
+        } else {
+          console.error("Failed to delete product");
+        }
+      } catch (error) {
+        console.error("Error deleting product:", error);
+      }
+    }
+  };
+  
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -49,7 +82,6 @@ export default function Products() {
   const onDrop = useCallback((acceptedFiles: File[]) => {
     if (!acceptedFiles.length) return;
     const file = acceptedFiles[0];
-    console.log("File received:", file);
     setImageFile(file);
     setImagePreview(URL.createObjectURL(file));
   }, []);
@@ -88,6 +120,11 @@ export default function Products() {
 
   const submitProduct = async (imageURL: string) => {
     try {
+      const sizesArray = sizesInput
+        .split(",")
+        .map((s) => s.trim())
+        .filter((s) => s !== "");
+
       const productData = {
         title: newProduct.title,
         price: newProduct.price,
@@ -95,6 +132,7 @@ export default function Products() {
         imgUrl: imageURL,
         available: true,
         ownedBy: subdomain,
+        sizes: sizesArray,
       };
 
       const response = await fetch("/api/v1/vendor/createNewProduct", {
@@ -105,18 +143,18 @@ export default function Products() {
 
       if (response.ok) {
         const addedProduct = await response.json();
-        console.log(addedProduct.product);
         setProducts((prev) => [
           ...prev,
           { id: prev.length + 1, ...addedProduct?.product },
         ]);
         setIsModalOpen(false);
         setNewProduct({
-          title: addedProduct?.product?.title,
-          price: addedProduct?.product?.price,
-          oldPrice: addedProduct?.product?.oldPrice,
-          imgUrl: addedProduct?.product?.imgUrl,
+          title: "",
+          price: 0,
+          oldPrice: 0,
+          sizes: [],
         });
+        setSizesInput("");
         setImagePreview(null);
         setUploadProgress(null);
       } else {
@@ -126,29 +164,17 @@ export default function Products() {
       console.log(error);
     }
   };
-  console.log(subdomain);
+
   const getProductList = async () => {
     try {
-      const productData = {
-        subdomain,
-      };
-
       const res = await fetch("/api/v1/vendor/getProductList", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(productData), // Wrap subdomain inside an object
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ subdomain }),
       });
 
-      console.log(res);
-
-      if (!res.ok) {
-        throw new Error(`Request failed with status ${res.status}`);
-      }
-
+      if (!res.ok) throw new Error(`Request failed with status ${res.status}`);
       const data = await res.json();
-      console.log(data?.products);
       setProducts(data?.products);
     } catch (error) {
       console.error("Error fetching products:", error);
@@ -162,7 +188,7 @@ export default function Products() {
   return (
     <div className="p-4">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-semibold">Cakes</h2>
+        <h2 className="text-xl font-semibold">Products</h2>
         <div className="flex gap-2">
           <button
             onClick={() => setView("grid")}
@@ -202,26 +228,63 @@ export default function Products() {
           }
         >
           {products.map((product) => (
-            <div
-              key={product._id}
-              className="border p-4 rounded flex gap-4 bg-white"
-            >
-              <img
-                src={product.imgUrl}
-                alt={product.title}
-                className="w-24 h-24 object-cover rounded"
-              />
-              <div>
-                <h3 className="font-semibold">{product.title}</h3>
-                <p className="text-gray-500">
-                  <span className="line-through text-red-500">
-                    ₹{product.price}
-                  </span>{" "}
-                  ₹{product.oldPrice}
-                </p>
-              </div>
-            </div>
-          ))}
+  <div
+    key={product._id}
+    className="border p-4 rounded flex gap-4 bg-white relative"
+  >
+    <button
+      onClick={() => {
+        setSelectedProduct(product);
+        setIsDeleteModalOpen(true);
+      }}
+      className="absolute top-2 right-2 text-gray-500 hover:text-red-600"
+    >
+      <AiOutlineDelete className="text-xl" />
+    </button>
+    <img
+      src={product.imgUrl}
+      alt={product.title}
+      className="w-24 h-24 object-cover rounded"
+    />
+    <div>
+      <h3 className="font-semibold">{product.title}</h3>
+      <p className="text-gray-500">
+        <span className="line-through text-red-500">
+          ₹{product.oldPrice}
+        </span>{" "}
+        ₹{product.price}
+      </p>
+      {product.availableSizes && product.availableSizes.length > 0 && (
+        <p className="text-sm text-gray-600 mt-1">
+          Sizes: {product.availableSizes.join(", ")}
+        </p>
+      )}
+    </div>
+  </div>
+))}
+{isDeleteModalOpen && selectedProduct && (
+  <div className="fixed inset-0 bg-black backdrop-blur-sm bg-opacity-50 flex justify-center items-center">
+    <div className="bg-white p-6 rounded-lg w-96">
+      <h2 className="text-xl font-semibold mb-4">Confirm Deletion</h2>
+      <p>Are you sure you want to delete the product "{selectedProduct.title}"?</p>
+      <div className="mt-4 flex justify-end gap-2">
+        <button
+          onClick={() => setIsDeleteModalOpen(false)}
+          className="px-4 py-2 bg-gray-300 rounded"
+        >
+          Cancel
+        </button>
+        <button
+          onClick={handleDeleteProduct}
+          className="px-4 py-2 bg-red-600 text-white rounded"
+        >
+          Delete
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
         </div>
       )}
 
@@ -230,12 +293,12 @@ export default function Products() {
           <div className="bg-white p-6 rounded-lg w-[30rem] flex flex-col relative items-center justify-center">
             <button
               onClick={() => setIsModalOpen(false)}
-              className="text-gray-600 absolute right-7"
+              className="text-gray-600 absolute right-4 top-4"
             >
               <AiOutlineClose className="text-2xl" />
             </button>
 
-            <h2 className="text-xl font-semibold dynamicTextColor">
+            <h2 className="text-xl font-semibold dynamicTextColor mb-3">
               Add Product
             </h2>
 
@@ -288,6 +351,14 @@ export default function Products() {
               onChange={handleInputChange}
               className="w-full border border-gray-300 p-2 rounded-md mt-4 dynamicOutline"
               placeholder="Offer Price"
+            />
+
+            <input
+              type="text"
+              value={sizesInput}
+              onChange={(e) => setSizesInput(e.target.value)}
+              className="w-full border border-gray-300 p-2 rounded-md mt-4 dynamicOutline"
+              placeholder="Sizes (comma separated, e.g., S, M, L)"
             />
 
             <button

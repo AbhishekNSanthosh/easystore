@@ -6,15 +6,56 @@ import Image from "next/image";
 import CustomButton from "@components/Button";
 import { Heart } from "lucide-react";
 import SearchBar from "../components/SearchBar";
+import easyToast from "@components/EasyToast";
 
-// Define product type
-interface Product {
+type User = {
   _id: string;
-  imgUrl: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  mobileNumber: string;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+};
+
+type Address = {
+  name: string;
+  phone: string;
+  street: string;
+  city: string;
+  pincode: string;
+};
+
+type Product = {
+  _id: string;
   title: string;
   price: number;
-  oldPrice?: number;
-}
+  oldPrice: number;
+  ownedBy: string;
+  imgUrl: string;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+};
+
+type Order = {
+  address: Address;
+  _id: string;
+  productId: Product;
+  subdomain: string;
+  createdBy: string;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+};
+
+type ProfileResponse = {
+  success: boolean;
+  user: User;
+  orders: Order[];
+};
 
 export default function AllProducts() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -25,20 +66,51 @@ export default function AllProducts() {
   const router = useRouter();
 
   const { subdomain } = useParams();
-    const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
-    const [search, setSearch] = useState("");
-      const [token, setToken] = useState<string | undefined>(Cookies.get("token"));
-      useEffect(() => {
-        if (!searchQuery) {
-          setFilteredProducts(products);
-        } else {
-          setFilteredProducts(
-            products.filter((product) =>
-              product.title.toLowerCase().includes(searchQuery.toLowerCase())
-            )
-          );
-        }
-      }, [searchQuery, products]);
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
+  const [search, setSearch] = useState("");
+  const [token, setToken] = useState<string | undefined>(Cookies.get("token"));
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    if (!searchQuery) {
+      setFilteredProducts(products);
+    } else {
+      setFilteredProducts(
+        products.filter((product) =>
+          product.title.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+      );
+    }
+  }, [searchQuery, products]);
+
+  useEffect(() => {
+    if (!token) {
+      console.error("No token found! Redirecting to login...");
+      router.push("/signin");
+      return;
+    }
+
+    const fetchProfileDetails = async () => {
+      try {
+        const response = await fetch("/api/v1/customer/getProfileDetails", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ token }),
+        });
+
+        if (!response.ok) throw new Error("Failed to fetch profile details");
+
+        const data: ProfileResponse = await response.json();
+        setUser(data.user);
+      } catch (error) {
+        console.error("Error fetching profile details:", error);
+      }
+    };
+
+    fetchProfileDetails();
+  }, [token, router]);
 
   useEffect(() => {
     if (!subdomain) return;
@@ -69,13 +141,44 @@ export default function AllProducts() {
     fetchProducts();
   }, [subdomain]); // Re-run when subdomain changes
 
+  const handleAddToCart = (product: Product, userId: string | undefined) => {
+    if (!userId) {
+      easyToast({
+        message: "Please log in to add items to the cart.",
+        type: "error",
+      });
+      return;
+    }
+
+    const cartKey = `cart_${userId}`; // Store user-specific cart
+    const existingCart = Cookies.get(cartKey);
+    const cart = existingCart ? JSON.parse(existingCart) : [];
+
+    // Check if product is already in the cart
+    const isAlreadyInCart = cart.some(
+      (item: Product) => item._id === product._id
+    );
+
+    if (!isAlreadyInCart) {
+      cart.push(product);
+      Cookies.set(cartKey, JSON.stringify(cart), { expires: 7 }); // Store for 7 days
+
+      // Dispatch event to update header cart count
+      window.dispatchEvent(new Event("cartUpdated"));
+
+      easyToast({ message: "Added to cart", type: "success" });
+    } else {
+      easyToast({ message: "Product is already in the cart!", type: "info" });
+    }
+  };
+
   if (loading) return <p className="text-center">Loading products...</p>;
   if (error) return <p className="text-red-500 text-center">{error}</p>;
 
   return (
     <div className="px-[5vw]">
       <div className="py-[2vh]">
-      <SearchBar setSearchQuery={setSearchQuery} />
+        <SearchBar setSearchQuery={setSearchQuery} />
       </div>
       {filteredProducts.length === 0 ? (
         <p className="text-gray-500">No products found.</p>
@@ -119,7 +222,7 @@ export default function AllProducts() {
 
               {/* Product Price */}
               <p className="text-gray-700">
-                <span className="text-red-500 font-bold">${product.price}</span>
+                <span className="text-red+-500 font-bold">${product.price}</span>
                 {product.oldPrice && (
                   <span className="text-gray-500 line-through ml-2">
                     ${product.oldPrice}
@@ -132,7 +235,12 @@ export default function AllProducts() {
                 <button className="w-1/2  text-white dynamicBgDark py-2 rounded-md hover:bg-blue-600 transition">
                   Buy Now
                 </button>
-                <button className="w-1/2 dynamicTextColor py-2 rounded-md transition">
+                <button
+                  onClick={() => {
+                    handleAddToCart(product, user?._id);
+                  }}
+                  className="w-1/2 dynamicTextColor py-2 rounded-md transition"
+                >
                   Add to Cart
                 </button>
               </div>

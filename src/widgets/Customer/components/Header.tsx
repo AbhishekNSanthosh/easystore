@@ -170,7 +170,7 @@ export default function Header({ storeData }: HeaderProps) {
             <Link href="/cart">
               <IoCartOutline />
               {cartCount > 0 && (
-                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full px-2 py-[2px]">
+                <span className="absolute -top-2 -right-2 dynamicBgDark text-white text-xs rounded-full px-2 py-[2px]">
                   {cartCount}
                 </span>
               )}

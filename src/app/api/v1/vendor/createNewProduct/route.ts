@@ -6,7 +6,7 @@ export const POST = async (request: NextRequest) => {
   try {
     await connectToDB(); // Connect to MongoDB
 
-    const { title, price, oldPrice, imgUrl, ownedBy } = await request.json();
+    const { title, price, oldPrice, imgUrl, ownedBy, sizes: availableSizes } = await request.json();
     console.log(title, price, oldPrice, imgUrl, ownedBy)
     // Validate required fields
     if (!title || !price || !imgUrl || !ownedBy) {
@@ -17,7 +17,7 @@ export const POST = async (request: NextRequest) => {
     }
 
     // Create a new product document
-    const newProduct = new Product({ title, price, oldPrice, imgUrl, ownedBy });
+    const newProduct = new Product({ title, price, oldPrice, imgUrl, ownedBy, availableSizes });
     await newProduct.save();
 
     return NextResponse.json(

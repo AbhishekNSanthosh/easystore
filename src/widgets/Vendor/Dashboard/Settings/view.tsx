@@ -12,6 +12,9 @@ export default function Settings() {
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
   const [bannerImages, setBannerImages] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
+  const [updating, setUpdating] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<{ [key: string]: number }>({});
+
   const subdomain = Cookies.get("subdomain");
 
   const handleImageSelection = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -35,6 +38,8 @@ export default function Settings() {
       easyToast({ message: "No images selected!", type: "info" });
       return;
     }
+    setUploading(true);
+
     try {
       const uploadedUrls = await Promise.all(
         selectedImages.map(async (file) => {
@@ -44,7 +49,13 @@ export default function Settings() {
           return new Promise<string>((resolve, reject) => {
             uploadTask.on(
               "state_changed",
-              null,
+              (snapshot) => {
+                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                setUploadProgress((prev) => ({
+                  ...prev,
+                  [file.name]: progress,
+                }));
+              },
               (error) => {
                 console.error("Upload error:", error);
                 reject(error);
@@ -60,6 +71,7 @@ export default function Settings() {
 
       setBannerImages((prev) => [...prev, ...uploadedUrls]);
       setSelectedImages([]); // Clear selection after upload
+      setUploadProgress({});
       easyToast({ message: "Images uploaded successfully!", type: "success" });
 
       await handleUpdateBanners(uploadedUrls);
@@ -118,7 +130,7 @@ export default function Settings() {
       return;
     }
 
-    setUploading(true);
+    setUpdating(true);
     try {
       const response = await fetch("/api/v1/vendor/updateTheme", {
         method: "POST",
@@ -141,7 +153,7 @@ export default function Settings() {
       console.error("Error updating theme:", error);
       alert("An error occurred while updating the theme.");
     } finally {
-      setUploading(false);
+      setUpdating(false);
     }
   };
 
@@ -204,16 +216,28 @@ export default function Settings() {
                     alt={`Selected ${index}`}
                     className="w-full h-32 object-cover rounded-lg"
                   />
+                  {/* {uploading && (
+                    <div className="absolute bottom-0 left-0 right-0 h-2 bg-gray-300 rounded-b-lg overflow-hidden">
+                      <div
+                        className="h-full dynamicBgDark transition-all duration-200 ease-in-out"
+                        style={{ width: `${uploadProgress[image.name] || 0}%` }}
+                      />
+                    </div>
+                  )} */}
                 </div>
               ))}
             </div>
             <button
-              onClick={handleImageUpload}
-              className="mt-4 dynamicBgDark text-white px-4 py-2 rounded-lg hover:bg-green-700 disabled:opacity-50"
-              disabled={uploading}
-            >
-              { "Upload"}
-            </button>
+  onClick={handleImageUpload}
+  className="mt-4 dynamicBgDark text-white px-4 py-2 rounded-lg hover:bg-green-700 disabled:opacity-50"
+  disabled={uploading}
+>
+  {uploading
+    ? `Uploading ${Math.round(
+        Object.values(uploadProgress).reduce((a, b) => a + b, 0) / selectedImages.length || 0
+      )}%...`
+    : "Upload"}
+</button>
           </div>
         )}
 

@@ -47,8 +47,14 @@ export default function RootLayout({
     return `${r}, ${g}, ${b}`;
   };
 
+
+
 useEffect(() => {
-  if (!session?.user?._id) return; // Ensure session and user ID exist
+  if (!session?.user?._id) {
+    router.push('/login')
+    signOut()
+    return
+  }; // Ensure session and user ID exist
 
   const fetchStore = async () => {
     try {

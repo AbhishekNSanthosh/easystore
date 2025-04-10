@@ -56,18 +56,17 @@ type ProfileResponse = {
 
 export default function ProfilePage() {
   const [isLoaded, setIsLoaded] = useState(false);
+  const router = useRouter();
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [token, setToken] = useState<string | undefined>(Cookies.get("token"));
+  const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoaded(true);
     }, 1000);
-
     return () => clearTimeout(timer);
   }, []);
-  const router = useRouter();
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [token, setToken] = useState<string | undefined>(Cookies.get("token"));
-  const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
     if (!token) {
@@ -107,67 +106,86 @@ export default function ProfilePage() {
   return (
     <main>
       {!isLoaded && <UserPreLoader />}
-      <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg mt-10">
-        <h1 className="text-2xl font-bold text-center mb-4">Profile</h1>
+
+      <div className="max-w-5xl mx-auto p-6 bg-white rounded-xl mt-10">
+        <h1 className="text-3xl font-bold text-center text-gray-800 mb-8">
+          My Profile
+        </h1>
 
         {user ? (
           <>
-            <div className="bg-gray-100 p-4 rounded-lg mb-6">
-              <h2 className="text-lg font-semibold">Personal Information</h2>
-              <p>
-                <strong>Name:</strong> {user.firstName} {user.lastName}
-              </p>
-              <p>
-                <strong>Email:</strong> {user.email}
-              </p>
-              <p>
-                <strong>Phone:</strong> {user.mobileNumber}
-              </p>
+            {/* Personal Info */}
+            <div className="bg-gradient-to-r from-blue-100 to-blue-200 p-6 dynamicBorder rounded-xl mb-8">
+              <h2 className="text-xl font-semibold mb-3 text-blue-900">
+                Personal Information
+              </h2>
+              <div className="space-y-2 text-gray-800">
+                <p><strong>Name:</strong> {user.firstName} {user.lastName}</p>
+                <p><strong>Email:</strong> {user.email}</p>
+                <p><strong>Phone:</strong> {user.mobileNumber}</p>
+              </div>
             </div>
 
-            <div className="bg-gray-100 p-4 rounded-lg mb-6">
-              <h2 className="text-lg font-semibold">Orders</h2>
+            {/* Orders */}
+            <div className="mb-10">
+              <h2 className="text-xl font-semibold mb-4 text-gray-800">Your Orders</h2>
               {orders.length > 0 ? (
-                <ul className="space-y-2">
+                <div className="grid md:grid-cols-2 gap-6">
                   {orders.map((order) => (
-                    <li
+                    <div
                       key={order._id}
-                      className="bg-white p-3 rounded shadow flex items-center space-x-4"
+                      className="flex flex-col sm:flex-row bg-gray-50 p-4 rounded-lg dynamicBorder hover:shadow-md transition duration-200"
                     >
-                      <div className="w-20 h-20 relative">
+                      <div className="relative w-full sm:w-32 h-32 mb-4 sm:mb-0 sm:mr-4">
                         <Image
                           src={order.productId.imgUrl}
                           alt={order.productId.title}
-                          layout="fill"
-                          objectFit="cover"
-                          className="rounded-lg"
+                          fill
+                          className="rounded-lg object-cover"
                         />
                       </div>
-                      <div>
-                        <p>
-                          <strong>Product:</strong> {order.productId.title}
-                        </p>
-                        <p>
-                          <strong>Price:</strong> ₹{order.productId.price}
-                        </p>
-                        <p>
-                          <strong>Status:</strong> {order.status}
+
+                      <div className="flex-1 space-y-1">
+                        <h3 className="text-lg font-medium text-gray-900">
+                          {order.productId.title}
+                        </h3>
+                        <div className="flex items-center gap-2">
+                          <span className="line-through text-red-500 text-sm">
+                            ₹{order.productId.oldPrice}
+                          </span>
+                          <span className="text-green-600 font-semibold">
+                            ₹{order.productId.price}
+                          </span>
+                        </div>
+                        <p className="text-sm">
+                          <strong>Status:</strong>{" "}
+                          <span
+                            className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                              order.status === "Delivered"
+                                ? "bg-green-100 text-green-700"
+                                : order.status === "Pending"
+                                ? "bg-yellow-100 text-yellow-800"
+                                : "bg-gray-200 text-gray-800"
+                            }`}
+                          >
+                            {order.status}
+                          </span>
                         </p>
                       </div>
-                    </li>
+                    </div>
                   ))}
-                </ul>
+                </div>
               ) : (
-                <p>No orders found.</p>
+                <p className="text-gray-600 text-center">No orders found.</p>
               )}
             </div>
           </>
         ) : (
-          <p className="text-center">Loading profile...</p>
+          <p className="text-center text-gray-500">Loading profile...</p>
         )}
 
         <button
-          className="w-full dynamicBgDark text-white py-2 rounded-lg hover:bg-red-600"
+          className="w-full border border-red-600 text-red-600 hover:text-white py-2 mt-4 rounded-lg hover:bg-red-600 transition"
           onClick={handleLogout}
         >
           Logout
