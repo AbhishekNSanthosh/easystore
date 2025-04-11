@@ -138,8 +138,8 @@ export default function Page() {
               {product.title}
             </h2>
             <p className="text-xl font-semibold text-blue-600">
-              ₹{product.price}
-              {product.oldPrice && (
+              ₹{product.oldPrice}
+              {product.price && (
                 <span className="ml-2 line-through text-red-500 text-sm">
                   ₹{product.oldPrice}
                 </span>

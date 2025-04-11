@@ -150,9 +150,6 @@ export default function ProfilePage() {
                           {order.productId.title}
                         </h3>
                         <div className="flex items-center gap-2">
-                          <span className="line-through text-red-500 text-sm">
-                            ₹{order.productId.oldPrice}
-                          </span>
                           <span className="text-green-600 font-semibold">
                             ₹{order.productId.price}
                           </span>
