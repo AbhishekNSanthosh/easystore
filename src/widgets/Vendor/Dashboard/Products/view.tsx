@@ -342,7 +342,7 @@ const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
               value={newProduct.price || ""}
               onChange={handleInputChange}
               className="w-full border border-gray-300 p-2 rounded-md mt-4 dynamicOutline"
-              placeholder="Old Price"
+              placeholder="Actual Price"
             />
             <input
               type="number"
@@ -350,7 +350,7 @@ const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
               value={newProduct.oldPrice || ""}
               onChange={handleInputChange}
               className="w-full border border-gray-300 p-2 rounded-md mt-4 dynamicOutline"
-              placeholder="Actual Price"
+              placeholder="Old Price"
             />
 
             <input
