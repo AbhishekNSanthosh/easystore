@@ -250,9 +250,10 @@ const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
       <h3 className="font-semibold">{product.title}</h3>
       <p className="text-gray-500">
         <span className="line-through text-red-500">
-          ₹{product.oldPrice}
+          ₹ {product.oldPrice}
         </span>{" "}
-        ₹{product.price}
+
+        ₹ {product.price}
       </p>
       {product.availableSizes && product.availableSizes.length > 0 && (
         <p className="text-sm text-gray-600 mt-1">
